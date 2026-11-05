@@ -1,0 +1,22 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts, getTags } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const tags = getTags(posts);
+  return tags.map(([tag]) => ({
+    params: { tag },
+    props: { tag, posts: posts.filter((p) => p.data.tags.includes(tag)), tags, total: posts.length },
+  }));
+}
+
+const { tag, posts, tags, total } = Astro.props;
+---
+
+<Base title={`#${tag}`} description={`标签「${tag}」下的全部日志。`}>
+  <PageHead index="03" en={`#${tag}`} cn="标签" desc={`标签「${tag}」下共有 ${posts.length} 篇日志。`} />
+  <PostList posts={posts} tags={tags} activeTag={tag} total={total} />
+</Base>

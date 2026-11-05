@@ -1,0 +1,125 @@
+---
+import Logo from './Logo.astro';
+import Barcode from './Barcode.astro';
+import { LINKS, NAV, SITE } from '../site.config';
+import { fmtDate } from '../lib/posts';
+
+const year = new Date().getFullYear();
+const build = fmtDate(new Date());
+---
+
+<footer class="site-footer">
+  <div class="hazard"></div>
+  <div class="container foot">
+    <div class="f-brand">
+      <Logo size={40} />
+      <div>
+        <p class="display f-name">{SITE.codename}</p>
+        <p class="label">Personal Terminal · {SITE.terminalId}</p>
+      </div>
+    </div>
+
+    <nav class="f-col" aria-label="页脚导航">
+      <p class="label f-head">Navigation / 导航</p>
+      {NAV.map((n) => <a href={n.href}><span class="display">{n.en}</span> <span class="muted">{n.cn}</span></a>)}
+    </nav>
+
+    <div class="f-col">
+      <p class="label f-head">Channels / 频道</p>
+      {
+        LINKS.map((l) => (
+          <a href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noopener">
+            <span class="display">{l.en}</span> <span class="muted">{l.cn}</span>
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="f-meta">
+      <Barcode value={SITE.codename + build} class="f-code" />
+      <p class="label">© {year} {SITE.author} · All systems nominal</p>
+      <p class="label">Build {build} · Powered by Astro</p>
+      <a class="label to-top" href="#top">↑ Back to top / 返回顶部</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: clamp(48px, 8vw, 96px);
+    background: var(--bg-elev);
+    border-top: 1px solid var(--line);
+  }
+  .foot {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1.4fr;
+    gap: 32px;
+    padding-block: 48px 40px;
+  }
+  .f-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    align-self: start;
+  }
+  .f-name {
+    font-size: 28px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .f-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .f-head {
+    margin-bottom: 6px;
+    color: var(--fg-faint);
+  }
+  .f-col a {
+    width: fit-content;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+  .f-col a .display {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .f-col a:hover .display {
+    box-shadow: inset 0 -6px 0 var(--accent);
+  }
+  .f-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    text-align: right;
+  }
+  .f-meta :global(.f-code) {
+    color: var(--fg);
+    margin-bottom: 6px;
+  }
+  .to-top {
+    margin-top: 6px;
+    color: var(--fg);
+  }
+  .to-top:hover {
+    color: var(--fg);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  @media (max-width: 860px) {
+    .foot {
+      grid-template-columns: 1fr 1fr;
+    }
+    .f-brand {
+      grid-column: 1 / -1;
+    }
+    .f-meta {
+      grid-column: 1 / -1;
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+</style>

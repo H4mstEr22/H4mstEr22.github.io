@@ -1,0 +1,76 @@
+---
+/** 背景装饰：旋转的定位环 */
+interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+---
+
+<svg class:list={['rings', cls]} viewBox="0 0 640 640" fill="none" aria-hidden="true">
+  <line x1="0" y1="320" x2="640" y2="320" class="axis"></line>
+  <line x1="320" y1="0" x2="320" y2="640" class="axis"></line>
+  <g class="spin s1"><circle cx="320" cy="320" r="304" class="tick" stroke-dasharray="1.5 8.5"></circle></g>
+  <circle cx="320" cy="320" r="286" class="thin"></circle>
+  <g class="spin s2 rev">
+    <circle cx="320" cy="320" r="252" class="mid" stroke-dasharray="210 30 40 30 12 30"></circle>
+  </g>
+  <g class="spin s3">
+    <circle cx="320" cy="320" r="268" class="accent" stroke-dasharray="90 1594"></circle>
+    <rect x="584" y="314" width="12" height="12" class="accent-fill" transform="rotate(45 590 320)"></rect>
+  </g>
+  <g class="spin s4 rev"><circle cx="320" cy="320" r="196" class="thin" stroke-dasharray="3 5"></circle></g>
+  <circle cx="320" cy="320" r="150" class="thin"></circle>
+  <path d="M320 150v18M320 472v18M150 320h18M472 320h18" class="mid"></path>
+</svg>
+
+<style>
+  .rings {
+    pointer-events: none;
+    color: var(--fg);
+  }
+  .axis {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .tick {
+    stroke: var(--line-mid);
+    stroke-width: 10;
+  }
+  .thin {
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .mid {
+    stroke: var(--line-mid);
+    stroke-width: 2;
+  }
+  .accent {
+    stroke: var(--accent);
+    stroke-width: 4;
+  }
+  .accent-fill {
+    fill: var(--accent);
+  }
+  .spin {
+    transform-box: view-box;
+    transform-origin: 320px 320px;
+    animation: spin 80s linear infinite;
+  }
+  .s2 {
+    animation-duration: 55s;
+  }
+  .s3 {
+    animation-duration: 24s;
+  }
+  .s4 {
+    animation-duration: 120s;
+  }
+  .rev {
+    animation-direction: reverse;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

@@ -1,0 +1,111 @@
+---
+/** 内页顶部标题区 */
+import Rings from './Rings.astro';
+
+interface Props {
+  index: string;
+  en: string;
+  cn: string;
+  desc?: string;
+  stats?: { k: string; v: string | number }[];
+}
+const { index, en, cn, desc, stats = [] } = Astro.props;
+---
+
+<section class="page-head">
+  <Rings class="ph-rings" />
+  <div class="container ph-inner">
+    <p class="label ph-kicker"><span class="dot"></span> Terminal / {index} / {en}</p>
+    <h1 class="ph-title">
+      <span class="display ph-en">{en}</span>
+      <span class="ph-cn">{cn}</span>
+    </h1>
+    {desc && <p class="ph-desc">{desc}</p>}
+    {
+      stats.length > 0 && (
+        <dl class="ph-stats">
+          {stats.map((s) => (
+            <div>
+              <dt class="label">{s.k}</dt>
+              <dd class="mono">{s.v}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+    <slot />
+  </div>
+  <div class="container"><div class="ticks"></div></div>
+</section>
+
+<style>
+  .page-head {
+    position: relative;
+    overflow: hidden;
+    padding-top: clamp(48px, 8vw, 96px);
+  }
+  .page-head :global(.ph-rings) {
+    position: absolute;
+    width: 620px;
+    right: -180px;
+    top: -200px;
+    opacity: 0.8;
+    z-index: -1;
+  }
+  .ph-inner {
+    padding-bottom: 32px;
+  }
+  .ph-kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    animation: rise 0.6s var(--ease) both;
+  }
+  .ph-title {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    animation: rise 0.7s var(--ease) 0.06s both;
+  }
+  .ph-en {
+    font-size: clamp(64px, 12vw, 136px);
+    line-height: 0.82;
+    letter-spacing: -0.005em;
+  }
+  .ph-cn {
+    font-size: clamp(18px, 2.2vw, 24px);
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    color: var(--fg-muted);
+  }
+  .ph-desc {
+    max-width: 640px;
+    margin-top: 22px;
+    color: var(--fg-muted);
+    animation: rise 0.7s var(--ease) 0.12s both;
+  }
+  .ph-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 28px 0 0;
+    animation: rise 0.7s var(--ease) 0.18s both;
+  }
+  .ph-stats > div {
+    padding: 6px 22px 6px 14px;
+    border-left: 2px solid var(--accent);
+  }
+  .ph-stats dd {
+    margin: 2px 0 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+</style>

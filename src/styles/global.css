@@ -1,0 +1,416 @@
+/* ==========================================================================
+   H4MSTER22 // TERMINAL — design tokens & base
+   Light = industrial field (pale concrete + signal yellow)
+   Dark  = night terminal (graphite + signal yellow + cyan)
+   ========================================================================== */
+
+:root {
+  --font-sans: 'Barlow', 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei UI', 'Microsoft YaHei',
+    'Noto Sans CJK SC', 'Source Han Sans SC', system-ui, sans-serif;
+  --font-display: 'Barlow Condensed', 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei UI',
+    'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'Cascadia Code', Consolas, 'Microsoft YaHei UI', monospace;
+
+  --container: 1200px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --header-h: 64px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --accent: #ffd400;
+  --on-accent: #121315;
+
+  /* light */
+  --bg: #e4e4df;
+  --bg-elev: #f1f1ed;
+  --bg-sunk: #d8d8d2;
+  --fg: #121315;
+  --fg-muted: #55585e;
+  --fg-faint: #85888e;
+  --line: rgba(18, 19, 21, 0.14);
+  --line-mid: rgba(18, 19, 21, 0.32);
+  --line-strong: #121315;
+  --grid: rgba(18, 19, 21, 0.045);
+  --grid-major: rgba(18, 19, 21, 0.075);
+  --signal: #0a8fc4;
+  --alert: #d9381e;
+  --ok: #2f9e5b;
+  --accent-ink: #121315; /* 需要「强调色文字」时在浅色下用墨色 */
+  --radar-stroke: #121315;
+  --radar-fill: rgba(255, 212, 0, 0.55);
+  --selection: rgba(255, 212, 0, 0.6);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0d0e10;
+    --bg-elev: #15171a;
+    --bg-sunk: #08090a;
+    --fg: #e7e7e2;
+    --fg-muted: #9b9fa6;
+    --fg-faint: #62666d;
+    --line: rgba(231, 231, 226, 0.11);
+    --line-mid: rgba(231, 231, 226, 0.26);
+    --line-strong: #e7e7e2;
+    --grid: rgba(231, 231, 226, 0.03);
+    --grid-major: rgba(231, 231, 226, 0.055);
+    --signal: #38c6ff;
+    --alert: #ff5a3c;
+    --ok: #4cd287;
+    --accent-ink: #ffd400;
+    --radar-stroke: #ffd400;
+    --radar-fill: rgba(255, 212, 0, 0.22);
+    --selection: rgba(255, 212, 0, 0.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --bg: #0d0e10;
+  --bg-elev: #15171a;
+  --bg-sunk: #08090a;
+  --fg: #e7e7e2;
+  --fg-muted: #9b9fa6;
+  --fg-faint: #62666d;
+  --line: rgba(231, 231, 226, 0.11);
+  --line-mid: rgba(231, 231, 226, 0.26);
+  --line-strong: #e7e7e2;
+  --grid: rgba(231, 231, 226, 0.03);
+  --grid-major: rgba(231, 231, 226, 0.055);
+  --signal: #38c6ff;
+  --alert: #ff5a3c;
+  --ok: #4cd287;
+  --accent-ink: #ffd400;
+  --radar-stroke: #ffd400;
+  --radar-fill: rgba(255, 212, 0, 0.22);
+  --selection: rgba(255, 212, 0, 0.35);
+  color-scheme: dark;
+}
+
+/* ---------- reset / base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 24px);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+@view-transition {
+  navigation: auto;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  font-feature-settings: 'tnum' 0;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+/* blueprint grid */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 120% 90% at 50% 0%, #000 40%, transparent 100%);
+}
+main {
+  flex: 1;
+}
+::selection {
+  background: var(--selection);
+  color: var(--fg);
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.15;
+  font-weight: 700;
+}
+p {
+  margin: 0;
+}
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---------- layout ---------- */
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.section {
+  padding-block: clamp(56px, 9vw, 112px);
+}
+
+/* ---------- type helpers ---------- */
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'zero' 1;
+  letter-spacing: 0.02em;
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.display {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+.muted {
+  color: var(--fg-muted);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- decorative primitives ---------- */
+
+/* yellow/black hazard stripes */
+.hazard {
+  height: 6px;
+  background: repeating-linear-gradient(-45deg, var(--accent) 0 10px, var(--on-accent) 10px 20px);
+}
+.hazard--thin {
+  height: 3px;
+}
+
+/* ruler ticks */
+.ticks {
+  height: 10px;
+  background-image: linear-gradient(90deg, var(--line-mid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-strong) 1px, transparent 1px);
+  background-size: 8px 5px, 80px 10px;
+  background-repeat: repeat-x;
+  background-position: 0 100%, 0 100%;
+  opacity: 0.6;
+}
+
+/* panel with crop-mark corners */
+.panel {
+  position: relative;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+}
+.corners::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  --c: var(--line-strong);
+  --s: 10px;
+  --w: 2px;
+  background: linear-gradient(var(--c) 0 0) top left / var(--s) var(--w),
+    linear-gradient(var(--c) 0 0) top left / var(--w) var(--s),
+    linear-gradient(var(--c) 0 0) top right / var(--s) var(--w),
+    linear-gradient(var(--c) 0 0) top right / var(--w) var(--s),
+    linear-gradient(var(--c) 0 0) bottom left / var(--s) var(--w),
+    linear-gradient(var(--c) 0 0) bottom left / var(--w) var(--s),
+    linear-gradient(var(--c) 0 0) bottom right / var(--s) var(--w),
+    linear-gradient(var(--c) 0 0) bottom right / var(--w) var(--s);
+  background-repeat: no-repeat;
+}
+
+/* clipped corner (top-right + bottom-left) */
+.cut {
+  --cut: 14px;
+  clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  --cut: 12px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 10px 22px 10px 18px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+  transition: transform 0.25s var(--ease), background-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+.btn .btn-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+}
+.btn--accent {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn--accent:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+.btn--ghost {
+  /* diagonal edge on the clipped corner */
+  background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.75px),
+      var(--line-strong) calc(50% - 0.75px),
+      var(--line-strong) calc(50% + 0.75px),
+      transparent calc(50% + 0.75px)
+    )
+    top right / var(--cut) var(--cut) no-repeat;
+  color: var(--fg);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+.btn--ghost:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn .arrow {
+  transition: transform 0.25s var(--ease);
+}
+.btn:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* ---------- chips / tags ---------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+  border: 1px solid var(--line-mid);
+  transition: all 0.2s var(--ease);
+}
+a.chip:hover,
+.chip.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.chip .count {
+  opacity: 0.6;
+}
+
+/* status dot */
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent);
+  animation: blink 2.4s steps(1) infinite;
+}
+@keyframes blink {
+  0%,
+  86% {
+    opacity: 1;
+  }
+  87%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+/* ---------- reveal on scroll (class added by ui.ts once it runs) ---------- */
+html.reveal-on .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+html.reveal-on .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+@media print {
+  html.reveal-on .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .site-header,
+  .rings {
+    display: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}

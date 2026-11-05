@@ -1,0 +1,102 @@
+---
+/** 标签筛选条 + 按年份分组的文章列表 */
+import PostRow from './PostRow.astro';
+import { tagHref, type Post } from '../lib/posts';
+
+interface Props {
+  posts: Post[];
+  tags: [string, number][];
+  activeTag?: string;
+  total?: number;
+}
+const { posts, tags, activeTag, total = posts.length } = Astro.props;
+
+const years = new Map<number, Post[]>();
+for (const p of posts) {
+  const y = p.data.pubDate.getUTCFullYear();
+  years.set(y, [...(years.get(y) ?? []), p]);
+}
+---
+
+<div class="container post-list">
+  <nav class="tag-bar" aria-label="按标签筛选">
+    <span class="label tb-label">Filter / 筛选</span>
+    <div class="chips">
+      <a class:list={['chip', { 'is-active': !activeTag }]} href="/blog/">ALL <span class="count">{total}</span></a>
+      {
+        tags.map(([t, c]) => (
+          <a
+            class:list={['chip', { 'is-active': activeTag === t }]}
+            href={tagHref(t)}
+            aria-current={activeTag === t ? 'page' : undefined}
+          >
+            #{t} <span class="count">{c}</span>
+          </a>
+        ))
+      }
+    </div>
+  </nav>
+
+  {
+    posts.length === 0 ? (
+      <div class="empty panel corners">
+        <p class="display">NO SIGNAL</p>
+        <p class="muted">暂无日志。在 src/content/blog/ 里新建一个 .md 文件就能发布第一篇。</p>
+      </div>
+    ) : (
+      [...years].map(([y, list]) => (
+        <section class="year reveal">
+          <div class="year-head">
+            <h2 class="display year-num">{y}</h2>
+            <span class="label">{list.length} entries</span>
+          </div>
+          <div class="year-list">
+            {list.map((p) => (
+              <PostRow post={p} />
+            ))}
+          </div>
+        </section>
+      ))
+    )
+  }
+</div>
+
+<style>
+  .post-list {
+    padding-top: 32px;
+  }
+  .tag-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 14px 0 40px;
+  }
+  .tb-label {
+    color: var(--fg-faint);
+  }
+  .year + .year {
+    margin-top: 56px;
+  }
+  .year-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .year-num {
+    font-size: 56px;
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--fg);
+  }
+  .empty {
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .empty .display {
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+</style>

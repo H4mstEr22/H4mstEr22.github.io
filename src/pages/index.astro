@@ -1,0 +1,718 @@
+---
+import Base from '../layouts/Base.astro';
+import Rings from '../components/Rings.astro';
+import Barcode from '../components/Barcode.astro';
+import Logo from '../components/Logo.astro';
+import Radar from '../components/Radar.astro';
+import SectionHead from '../components/SectionHead.astro';
+import PostRow from '../components/PostRow.astro';
+import { SITE, IDENTITY, PROFILE, PROJECTS, LINKS, type ProjectStatus } from '../site.config';
+import { getPosts, fmtDate } from '../lib/posts';
+
+const posts = await getPosts();
+const synced = fmtDate(new Date());
+const latest = posts.slice(0, 4);
+const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: '筹备中', ARCHIVED: '已归档' };
+---
+
+<Base>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <Rings class="hero-rings" />
+    <div class="container hero-grid">
+      <div class="hero-main">
+        <p class="label kicker">
+          <span class="dot"></span> Sys.online · Terminal {SITE.terminalId} · 终端已连接
+        </p>
+        <h1 class="hero-title" aria-label={SITE.codename}>
+          <span class="ht-ghost display" aria-hidden="true">{SITE.codename}</span>
+          <span class="ht-main display" aria-hidden="true" data-scramble>{SITE.codename}</span>
+        </h1>
+        <div class="hero-line">
+          <span class="hl-bar" aria-hidden="true"></span>
+          <p class="mono hero-en">{SITE.taglineEn}</p>
+        </div>
+        <p class="hero-tagline">{SITE.tagline}</p>
+        <div class="hero-actions">
+          <a class="btn btn--accent" href="/blog/">
+            进入日志 <span class="btn-sub">Enter logs</span><span class="arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="btn btn--ghost" href="#profile">查看档案 <span class="btn-sub">Profile</span></a>
+        </div>
+      </div>
+
+      <aside class="id-card panel corners" aria-label="身份卡">
+        <div class="idc-head">
+          <span class="label">Identification / 身份识别</span>
+          <span class="idc-flag mono">{SITE.terminalId}</span>
+        </div>
+        <div class="idc-emblem">
+          <Logo size={84} class="idc-logo" />
+          <span class="label idc-corner tl">Portrait</span>
+          <span class="label idc-corner br">REV.01</span>
+        </div>
+        <dl class="idc-rows">
+          {
+            IDENTITY.map((r) => (
+              <div>
+                <dt class="label">
+                  {r.k} <span>{r.cn}</span>
+                </dt>
+                <dd>{r.v}</dd>
+              </div>
+            ))
+          }
+          <div>
+            <dt class="label">STATUS <span>状态</span></dt>
+            <dd class="idc-status"><span class="dot"></span> ACTIVE · 在线</dd>
+          </div>
+        </dl>
+        <div class="idc-foot">
+          <Barcode value={SITE.codename} class="idc-code" />
+          <span class="label">Authorized<br />personnel only</span>
+        </div>
+        <div class="hazard"></div>
+      </aside>
+    </div>
+
+    <div class="container hero-foot">
+      <div class="ticks"></div>
+      <div class="hf-row label">
+        <span>Sector 22-H · Grid 07/19</span>
+        <a href="#profile" class="scroll-cue">Scroll ↓</a>
+        <span class="hf-time">Local <span class="mono" data-clock>--:--:--</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 PROFILE ============ -->
+  <section class="section" id="profile">
+    <div class="container">
+      <SectionHead index="01" en="Profile" cn="个人档案" note={`File · ${SITE.terminalId} · Rev.01`} />
+      <div class="profile-grid">
+        <div class="panel corners bio reveal">
+          <p class="label panel-tag">Basic info / 基础信息</p>
+          <div class="bio-text">{PROFILE.bio.map((p) => <p>{p}</p>)}</div>
+          <dl class="facts">
+            {
+              PROFILE.facts.map((f) => (
+                <div>
+                  <dt class="label">
+                    {f.k} <span>{f.cn}</span>
+                  </dt>
+                  <dd>{f.v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+          <div class="bio-foot">
+            <span class="label">Record synced / 档案同步</span>
+            <span class="mono">{synced}</span>
+            <Barcode value={`${SITE.codename}-profile`} height={16} class="bio-code" />
+          </div>
+        </div>
+        <div class="panel corners matrix reveal" style="--i:1">
+          <p class="label panel-tag">Ability matrix / 能力矩阵</p>
+          <Radar abilities={PROFILE.abilities} />
+          <p class="label matrix-note">* 自评数据 · Self-assessed</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 PROJECTS ============ -->
+  <section class="section section--alt" id="projects">
+    <div class="container">
+      <SectionHead index="02" en="Projects" cn="项目" note={`${PROJECTS.length} entries`} />
+      <div class="proj-grid">
+        {
+          PROJECTS.map((p, i) => {
+            const Tag = p.href ? 'a' : 'div';
+            const external = p.href?.startsWith('http');
+            return (
+              <Tag
+                class:list={['project', 'reveal', `is-${p.status.toLowerCase()}`, { 'has-link': p.href }]}
+                style={`--i:${i}`}
+                href={p.href}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener' : undefined}
+              >
+                <span class="p-top">
+                  <span class="mono p-code">{p.code}</span>
+                  <span class="p-status mono">
+                    <i aria-hidden="true" />
+                    {p.status} · {statusCn[p.status]}
+                  </span>
+                </span>
+                <span class="p-name">
+                  <span class="display">{p.name}</span>
+                  <span class="p-cn">{p.cn}</span>
+                </span>
+                <span class="p-desc">{p.desc}</span>
+                <span class="chips">
+                  {p.tags.map((t) => (
+                    <span class="chip">{t}</span>
+                  ))}
+                </span>
+                <span class="p-foot mono">
+                  <span>{p.href ? 'Access' : 'No link'}</span>
+                  <span aria-hidden="true">{p.href ? '↗' : '—'}</span>
+                </span>
+              </Tag>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 LOGS ============ -->
+  <section class="section" id="logs">
+    <div class="container">
+      <SectionHead index="03" en="Latest logs" cn="最新日志" note={`Total ${posts.length}`} />
+      <div class="log-list reveal">
+        {latest.map((p) => <PostRow post={p} />)}
+      </div>
+      <div class="more reveal">
+        <a class="btn btn--ghost" href="/blog/">
+          全部日志 <span class="btn-sub">All logs</span><span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 CONTACT ============ -->
+  <section class="section" id="contact">
+    <div class="container">
+      <SectionHead index="04" en="Contact" cn="通讯频道" note="Channel open" />
+      <div class="contact-grid">
+        <div class="contact-lead reveal">
+          <p class="cl-big">有想法、问题，<br />或者只是想打个招呼？</p>
+          <p class="muted">通过右侧频道联系我。信号接通后会尽快回复。</p>
+        </div>
+        <div class="links">
+          {
+            LINKS.map((l, i) => {
+              const external = l.href.startsWith('http');
+              return (
+                <a
+                  class="link-card reveal"
+                  style={`--i:${i}`}
+                  href={l.href}
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener' : undefined}
+                >
+                  <span class="label">CH.0{i + 1} · {l.cn}</span>
+                  <span class="display lc-name">{l.en}</span>
+                  <span class="mono lc-handle">{l.handle}</span>
+                  <span class="lc-go" aria-hidden="true">↗</span>
+                </a>
+              );
+            })
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------------- hero ---------------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-top: clamp(40px, 7vw, 88px);
+  }
+  .hero :global(.hero-rings) {
+    position: absolute;
+    width: min(920px, 130vw);
+    right: max(-300px, -20vw);
+    top: 46%;
+    translate: 0 -50%;
+    z-index: -1;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+    min-height: min(640px, calc(100svh - 220px));
+  }
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+    animation: rise 0.6s var(--ease) both;
+  }
+  .hero-title {
+    position: relative;
+    font-size: clamp(64px, 13.5vw, 184px);
+    line-height: 0.8;
+    font-weight: 700;
+    margin-bottom: 28px;
+    animation: rise 0.7s var(--ease) 0.05s both;
+  }
+  .hero-title .display {
+    display: block;
+    letter-spacing: -0.012em;
+    white-space: nowrap;
+  }
+  .ht-ghost {
+    position: absolute;
+    left: 0.035em;
+    top: 0.05em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--line-mid);
+  }
+  .ht-main {
+    position: relative;
+  }
+  .hero-line {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+    animation: rise 0.7s var(--ease) 0.12s both;
+  }
+  .hl-bar {
+    flex: none;
+    width: 56px;
+    height: 6px;
+    background: var(--accent);
+  }
+  .hero-en {
+    font-size: clamp(11px, 1.2vw, 13px);
+    letter-spacing: 0.16em;
+    color: var(--fg-muted);
+  }
+  .hero-tagline {
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    margin-bottom: 36px;
+    animation: rise 0.7s var(--ease) 0.18s both;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    animation: rise 0.7s var(--ease) 0.24s both;
+  }
+
+  /* id card */
+  .id-card {
+    animation: rise 0.8s var(--ease) 0.3s both;
+    box-shadow: 0 24px 48px -32px rgba(0, 0, 0, 0.45);
+  }
+  .idc-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .idc-flag {
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .idc-emblem {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    margin: 14px 16px 4px;
+    background: repeating-linear-gradient(-45deg, transparent 0 7px, var(--line) 7px 8px), var(--bg-sunk);
+    border: 1px solid var(--line);
+  }
+  .idc-emblem :global(.idc-logo) {
+    color: var(--fg);
+  }
+  .idc-corner {
+    position: absolute;
+    font-size: 9px;
+    color: var(--fg-faint);
+  }
+  .idc-corner.tl {
+    top: 6px;
+    left: 8px;
+  }
+  .idc-corner.br {
+    bottom: 6px;
+    right: 8px;
+  }
+  .idc-rows {
+    margin: 0;
+    padding: 6px 16px 12px;
+  }
+  .idc-rows > div {
+    display: grid;
+    grid-template-columns: 108px 1fr;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .idc-rows dt span,
+  .facts dt span {
+    color: var(--fg-faint);
+    letter-spacing: 0.1em;
+  }
+  .idc-rows dd {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .idc-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .idc-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 4px 16px 14px;
+  }
+  .idc-foot :global(.idc-code) {
+    color: var(--fg);
+  }
+  .idc-foot .label {
+    font-size: 9px;
+    text-align: right;
+    color: var(--fg-faint);
+  }
+
+  .hero-foot {
+    margin-top: clamp(40px, 6vw, 72px);
+  }
+  .hf-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 10px;
+    color: var(--fg-faint);
+  }
+  .scroll-cue {
+    color: var(--fg);
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  .scroll-cue:hover {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  @keyframes bob {
+    50% {
+      transform: translateY(3px);
+    }
+  }
+
+  /* ---------------- profile ---------------- */
+  .profile-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 24px;
+  }
+  .bio,
+  .matrix {
+    padding: 28px clamp(20px, 3vw, 36px) 28px;
+  }
+  .panel-tag {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent);
+    color: var(--fg);
+  }
+  .bio-text {
+    display: grid;
+    gap: 12px;
+    font-size: 17px;
+    margin-bottom: 28px;
+  }
+  .bio-text p:last-child {
+    color: var(--fg-muted);
+    font-size: 15px;
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+    margin: 0;
+  }
+  .facts > div {
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+  }
+  .facts dd {
+    margin: 4px 0 0;
+    font-weight: 600;
+  }
+  .bio {
+    display: flex;
+    flex-direction: column;
+  }
+  .bio .facts {
+    margin-bottom: 24px;
+  }
+  .bio-foot {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line-mid);
+    color: var(--fg-faint);
+  }
+  .bio-foot .mono {
+    font-size: 12px;
+    color: var(--fg-muted);
+  }
+  .bio-foot :global(.bio-code) {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    color: var(--fg);
+    opacity: 0.35;
+  }
+  .matrix {
+    display: flex;
+    flex-direction: column;
+  }
+  .matrix :global(.radar-svg) {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .matrix-note {
+    margin-top: auto;
+    padding-top: 10px;
+    font-size: 10px;
+    color: var(--fg-faint);
+  }
+
+  /* ---------------- projects ---------------- */
+  .section--alt {
+    background: color-mix(in srgb, var(--bg-elev) 55%, transparent);
+    border-block: 1px solid var(--line);
+  }
+  .proj-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 20px;
+  }
+  .project {
+    --cut: 18px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 22px 18px;
+    background: var(--bg-elev);
+    box-shadow: inset 0 0 0 1px var(--line-mid);
+    clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+    transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+  }
+  .project::after {
+    /* diagonal edge on the clipped corner */
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: var(--cut);
+    height: var(--cut);
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.75px),
+      var(--line-mid) calc(50% - 0.75px),
+      var(--line-mid) calc(50% + 0.75px),
+      transparent calc(50% + 0.75px)
+    );
+    pointer-events: none;
+  }
+  .project.has-link:hover::after {
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 0.75px),
+      var(--line-strong) calc(50% - 0.75px),
+      var(--line-strong) calc(50% + 0.75px),
+      transparent calc(50% + 0.75px)
+    );
+  }
+  .project.has-link:hover {
+    transform: translateY(-4px);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+  }
+  .p-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 -22px;
+    padding: 10px 22px;
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+  }
+  .project.has-link:hover .p-top {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .p-code {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .p-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-right: 10px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+  .p-status i {
+    width: 7px;
+    height: 7px;
+    background: var(--fg-faint);
+  }
+  .is-active .p-status i {
+    background: var(--ok);
+  }
+  .is-planned .p-status i {
+    background: var(--signal);
+  }
+  .p-name {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 6px;
+  }
+  .p-name .display {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .p-cn {
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--fg-muted);
+  }
+  .p-desc {
+    font-size: 15px;
+    color: var(--fg-muted);
+    flex: 1;
+  }
+  .p-foot {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line-mid);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+  .project.has-link:hover .p-foot {
+    color: var(--fg);
+  }
+  .is-archived {
+    opacity: 0.72;
+  }
+
+  /* ---------------- logs ---------------- */
+  .log-list {
+    border-top: 1px solid var(--line-strong);
+  }
+  .more {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 28px;
+  }
+
+  /* ---------------- contact ---------------- */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 40px;
+    align-items: start;
+  }
+  .cl-big {
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 600;
+    line-height: 1.35;
+    margin-bottom: 14px;
+  }
+  .links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .link-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px 22px;
+    background: var(--bg-elev);
+    border: 1px solid var(--line-mid);
+    transition: background-color 0.25s var(--ease), color 0.25s var(--ease), border-color 0.25s var(--ease);
+  }
+  .lc-name {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 0.95;
+  }
+  .lc-handle {
+    font-size: 13px;
+    color: var(--fg-muted);
+  }
+  .lc-go {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    font-size: 22px;
+    transition: transform 0.25s var(--ease);
+  }
+  .link-card:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+  .link-card:hover .label,
+  .link-card:hover .lc-handle {
+    color: var(--on-accent);
+  }
+  .link-card:hover .lc-go {
+    transform: translate(3px, -3px);
+  }
+
+  /* ---------------- responsive ---------------- */
+  @media (max-width: 980px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+    .id-card {
+      max-width: 440px;
+    }
+    .profile-grid,
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .hf-time {
+      display: none;
+    }
+    .facts {
+      grid-template-columns: 1fr;
+    }
+    .idc-rows > div {
+      grid-template-columns: 112px 1fr;
+    }
+    .idc-rows dt {
+      white-space: nowrap;
+    }
+  }
+</style>

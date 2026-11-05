@@ -1,0 +1,75 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import { getPosts, getTags, tagHref } from '../../lib/posts';
+
+const posts = await getPosts();
+const tags = getTags(posts);
+const max = Math.max(1, ...tags.map(([, c]) => c));
+---
+
+<Base title="标签 Tags" description="按标签浏览 H4mstEr22 的全部日志。">
+  <PageHead
+    index="03"
+    en="Tags"
+    cn="标签"
+    desc="按主题浏览全部日志。"
+    stats={[
+      { k: 'Tags / 标签', v: tags.length },
+      { k: 'Entries / 篇数', v: posts.length },
+    ]}
+  />
+  <div class="container tag-grid">
+    {
+      tags.map(([t, c], i) => (
+        <a class="tag-card reveal" href={tagHref(t)} style={`--i:${i % 8}`}>
+          <span class="label">TAG.{String(i + 1).padStart(2, '0')}</span>
+          <span class="tc-name">#{t}</span>
+          <span class="tc-bar" aria-hidden="true">
+            <span style={`width:${(c / max) * 100}%`} />
+          </span>
+          <span class="mono tc-count">{c} entries</span>
+        </a>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .tag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: 16px;
+    padding-top: 40px;
+  }
+  .tag-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px 20px;
+    background: var(--bg-elev);
+    border: 1px solid var(--line-mid);
+    transition: border-color 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+  .tag-card:hover {
+    border-color: var(--line-strong);
+    transform: translateY(-3px);
+  }
+  .tc-name {
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .tc-bar {
+    height: 4px;
+    background: var(--line);
+  }
+  .tc-bar span {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+  }
+  .tc-count {
+    font-size: 12px;
+    color: var(--fg-muted);
+  }
+</style>

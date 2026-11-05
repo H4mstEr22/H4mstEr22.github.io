@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import Rings from '../components/Rings.astro';
+---
+
+<Base title="404 信号丢失" description="页面不存在。">
+  <section class="lost container">
+    <Rings class="lost-rings" />
+    <p class="label"><span class="dot"></span> Error · Route not found</p>
+    <h1 class="display code" data-scramble>404</h1>
+    <p class="display title">Signal lost</p>
+    <p class="muted desc">信号丢失。你要找的页面不存在，或者已经被移动到别的坐标。</p>
+    <div class="actions">
+      <a class="btn btn--accent" href="/">返回主页 <span class="btn-sub">Home</span></a>
+      <a class="btn btn--ghost" href="/blog/">浏览日志 <span class="btn-sub">Logs</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding-block: clamp(64px, 12vw, 140px);
+    overflow: hidden;
+  }
+  .lost :global(.lost-rings) {
+    position: absolute;
+    width: 560px;
+    right: -120px;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: -1;
+  }
+  .code {
+    font-size: clamp(120px, 26vw, 260px);
+    line-height: 0.8;
+    margin-top: 12px;
+  }
+  .title {
+    font-size: clamp(32px, 5vw, 56px);
+    line-height: 1;
+    padding: 4px 12px;
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .desc {
+    margin-top: 12px;
+    max-width: 460px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+</style>

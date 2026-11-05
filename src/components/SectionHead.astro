@@ -1,0 +1,73 @@
+---
+interface Props {
+  index: string;
+  en: string;
+  cn: string;
+  note?: string;
+  as?: 'h1' | 'h2';
+}
+const { index, en, cn, note, as: Tag = 'h2' } = Astro.props;
+---
+
+<div class="section-head reveal">
+  <span class="sh-index mono">[ {index} ]</span>
+  <Tag class="sh-title">
+    <span class="sh-en display">{en}</span>
+    <span class="sh-cn">{cn}</span>
+  </Tag>
+  <span class="sh-rule" aria-hidden="true"><span class="ticks"></span></span>
+  {note && <span class="sh-note label">{note}</span>}
+</div>
+
+<style>
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    margin-bottom: clamp(28px, 4vw, 44px);
+  }
+  .sh-index {
+    flex: none;
+    white-space: nowrap;
+    align-self: flex-start;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--on-accent);
+    background: var(--accent);
+  }
+  .sh-title {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .sh-en {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 700;
+    line-height: 0.85;
+    letter-spacing: 0.005em;
+  }
+  .sh-cn {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: var(--fg-muted);
+  }
+  .sh-rule {
+    flex: 1;
+    min-width: 40px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line-mid);
+  }
+  .sh-note {
+    white-space: nowrap;
+    padding-bottom: 4px;
+    color: var(--fg-faint);
+  }
+  @media (max-width: 640px) {
+    .sh-note {
+      display: none;
+    }
+  }
+</style>

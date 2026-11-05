@@ -1,0 +1,27 @@
+---
+/** 由字符串确定性生成的装饰条码 */
+interface Props {
+  value: string;
+  height?: number;
+  width?: number;
+  class?: string;
+}
+const { value, height = 26, width = 120, class: cls } = Astro.props;
+
+let seed = [...value].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0, 2166136261);
+const rand = () => {
+  seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+  return seed / 2 ** 32;
+};
+const bars: { x: number; w: number }[] = [];
+let x = 0;
+while (x < width) {
+  const w = 1 + Math.floor(rand() * 3);
+  bars.push({ x, w });
+  x += w + 1 + Math.floor(rand() * 2);
+}
+---
+
+<svg class={cls} viewBox={`0 0 ${x} ${height}`} width={x} height={height} preserveAspectRatio="none" aria-hidden="true">
+  {bars.map((b) => <rect x={b.x} y="0" width={b.w} height={height} fill="currentColor" />)}
+</svg>
