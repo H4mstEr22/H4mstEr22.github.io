@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>H4mstEr22</title>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --fg: #1d1d1f;
+      --muted: #6e6e73;
+      --accent: #c2410c;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #121212; --fg: #ececec; --muted: #9a9a9f; --accent: #fb923c; }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    main { max-width: 560px; text-align: center; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); margin: 0 0 .5rem; letter-spacing: -.02em; }
+    h1 span { color: var(--accent); }
+    p { color: var(--muted); line-height: 1.6; margin: .25rem 0; }
+    code { font-size: .9em; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Hello, I'm <span>H4mstEr22</span></h1>
+    <p>个人网站建设中 · Under construction</p>
+    <p>如果你看到这个页面，说明 GitHub Pages 已部署成功。</p>
+    <p><code id="t"></code></p>
+  </main>
+  <script>
+    document.getElementById('t').textContent = '页面加载于 ' + new Date().toLocaleString();
+  </script>
+</body>
+</html>
