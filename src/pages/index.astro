@@ -67,8 +67,8 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
           </div>
         </dl>
         <div class="idc-foot">
-          <Barcode value={SITE.author} height={40} />
-          <span class="label">Code 128 · Authorized personnel only</span>
+          <Barcode value={SITE.author} module={1} height={26} class="idc-code" />
+          <span class="label">Authorized<br />personnel only</span>
         </div>
         <div class="hazard"></div>
       </aside>
@@ -108,7 +108,7 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
         <div class="bio-foot">
           <span class="label">Record synced / 档案同步</span>
           <span class="mono">{synced}</span>
-          <Barcode value={synced.replaceAll('.', '')} height={26} class="bio-code" />
+          <Barcode value={synced.replaceAll('.', '')} height={16} class="bio-code" />
         </div>
       </div>
     </div>
@@ -227,7 +227,7 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
   }
   .hero-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 352px;
+    grid-template-columns: minmax(0, 1fr) 340px;
     gap: clamp(32px, 5vw, 72px);
     align-items: center;
     min-height: min(640px, calc(100svh - 220px));
@@ -367,13 +367,16 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
   }
   .idc-foot {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px 14px;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 4px 16px 14px;
+  }
+  .idc-foot :global(.idc-code) {
+    color: var(--fg);
+    margin-left: -10px; /* 抵消条码左侧静区 */
   }
   .idc-foot .label {
-    align-self: stretch;
     font-size: 9px;
     text-align: right;
     color: var(--fg-faint);
@@ -459,6 +462,9 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
   }
   .bio-foot :global(.bio-code) {
     margin-left: auto;
+    margin-right: -20px; /* 抵消条码右侧静区 */
+    color: var(--fg);
+    opacity: 0.35;
   }
 
   /* ---------------- projects ---------------- */

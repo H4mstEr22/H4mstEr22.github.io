@@ -36,7 +36,7 @@ const year = build.slice(0, 4);
     </div>
 
     <div class="f-meta">
-      <Barcode value={SITE.terminalId} height={30} class="f-code" />
+      <Barcode value={SITE.terminalId} module={1} height={26} class="f-code" />
       <p class="label">© {year} {SITE.author} · All systems nominal</p>
       <p class="label">Build {build} · Powered by Astro</p>
       <a class="label to-top" href="#top">↑ Back to top / 返回顶部</a>
@@ -97,7 +97,15 @@ const year = build.slice(0, 4);
     text-align: right;
   }
   .f-meta :global(.f-code) {
-    margin-bottom: 8px;
+    color: var(--fg);
+    margin-bottom: 6px;
+    margin-right: -10px; /* 抵消条码右侧静区，让条纹和文字右对齐 */
+  }
+  @media (max-width: 860px) {
+    .f-meta :global(.f-code) {
+      margin-right: 0;
+      margin-left: -10px;
+    }
   }
   .to-top {
     margin-top: 6px;
