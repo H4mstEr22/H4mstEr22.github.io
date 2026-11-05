@@ -41,4 +41,10 @@ export function getTags(posts: Post[]) {
 export const fmtDate = (d: Date) =>
   `${d.getUTCFullYear()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${String(d.getUTCDate()).padStart(2, '0')}`;
 
-export const tagHref = (t: string) => `/tags/${encodeURIComponent(t)}/`;
+/** 构建当天的日期（按站点时区，而不是构建机器的时区），格式 2026.11.05 */
+export const fmtBuildDate = (timeZone = 'Asia/Shanghai') =>
+  new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' })
+    .format(new Date())
+    .replaceAll('-', '.');
+
+export const tagHref =(t: string) => `/tags/${encodeURIComponent(t)}/`;

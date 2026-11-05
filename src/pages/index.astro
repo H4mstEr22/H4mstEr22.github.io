@@ -6,10 +6,10 @@ import Logo from '../components/Logo.astro';
 import SectionHead from '../components/SectionHead.astro';
 import PostRow from '../components/PostRow.astro';
 import { SITE, IDENTITY, PROFILE, PROJECTS, LINKS, type ProjectStatus } from '../site.config';
-import { getPosts, fmtDate } from '../lib/posts';
+import { getPosts, fmtBuildDate } from '../lib/posts';
 
 const posts = await getPosts();
-const synced = fmtDate(new Date());
+const synced = fmtBuildDate(SITE.timezone);
 const latest = posts.slice(0, 4);
 const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: '筹备中', ARCHIVED: '已归档' };
 ---
@@ -67,8 +67,8 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
           </div>
         </dl>
         <div class="idc-foot">
-          <Barcode value={SITE.codename} class="idc-code" />
-          <span class="label">Authorized<br />personnel only</span>
+          <Barcode value={SITE.author} height={40} />
+          <span class="label">Code 128 · Authorized personnel only</span>
         </div>
         <div class="hazard"></div>
       </aside>
@@ -108,7 +108,7 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
         <div class="bio-foot">
           <span class="label">Record synced / 档案同步</span>
           <span class="mono">{synced}</span>
-          <Barcode value={`${SITE.codename}-profile`} width={360} height={16} class="bio-code" />
+          <Barcode value={synced.replaceAll('.', '')} height={26} class="bio-code" />
         </div>
       </div>
     </div>
@@ -227,7 +227,7 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
   }
   .hero-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-columns: minmax(0, 1fr) 352px;
     gap: clamp(32px, 5vw, 72px);
     align-items: center;
     min-height: min(640px, calc(100svh - 220px));
@@ -367,15 +367,13 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
   }
   .idc-foot {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 12px;
-    padding: 4px 16px 14px;
-  }
-  .idc-foot :global(.idc-code) {
-    color: var(--fg);
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px 14px;
   }
   .idc-foot .label {
+    align-self: stretch;
     font-size: 9px;
     text-align: right;
     color: var(--fg-faint);
@@ -447,8 +445,9 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
   }
   .bio-foot {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 14px;
+    gap: 10px 14px;
     margin-top: 28px;
     padding-top: 16px;
     border-top: 1px dashed var(--line-mid);
@@ -459,11 +458,7 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     color: var(--fg-muted);
   }
   .bio-foot :global(.bio-code) {
-    flex: 0 1 280px;
-    min-width: 0;
     margin-left: auto;
-    color: var(--fg);
-    opacity: 0.35;
   }
 
   /* ---------------- projects ---------------- */

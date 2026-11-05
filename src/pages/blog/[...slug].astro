@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Barcode from '../../components/Barcode.astro';
 import { getPosts, fmtDate, tagHref } from '../../lib/posts';
+import { canEncode } from '../../lib/code128';
 import '../../styles/prose.css';
 
 export async function getStaticPaths() {
@@ -16,6 +17,8 @@ export async function getStaticPaths() {
 const { post, newer, older } = Astro.props;
 const { title, description, pubDate, updatedDate, tags, draft } = post.data;
 const { Content, headings } = await render(post);
+/** 条码编码文件名；文件名含中文等 Code 128 不支持的字符时改用日志编号 */
+const barcodeValue = canEncode(post.id) ? post.id : post.logNo;
 const toc = headings.filter((h) => (h.depth === 2 || h.depth === 3) && h.slug !== 'footnote-label');
 let h2 = 0;
 const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padStart(2, '0') : '' }));
@@ -88,8 +91,9 @@ const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padSta
     <footer class="container post-end">
       <div class="end-mark">
         <span class="label">End of log / 日志结束</span>
-        <Barcode value={post.id} width={420} height={18} class="end-code" />
+        <span class="end-rule" aria-hidden="true"></span>
         <span class="mono end-no">{post.logNo}</span>
+        <Barcode value={barcodeValue} height={34} class="end-code" />
       </div>
       <nav class="post-nav" aria-label="相邻文章">
         {
@@ -289,18 +293,25 @@ const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padSta
     margin-top: 72px;
   }
   .end-mark {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(24px, 1fr) auto auto;
     align-items: center;
     gap: 16px;
     padding: 14px 0;
     border-block: 1px solid var(--line-strong);
   }
-  .end-mark :global(.end-code) {
-    flex: 1;
-    min-width: 0;
-    width: 100%;
-    color: var(--fg);
-    opacity: 0.55;
+  .end-rule {
+    height: 1px;
+    border-top: 1px dashed var(--line-mid);
+  }
+  @media (max-width: 760px) {
+    .end-mark {
+      grid-template-columns: auto minmax(24px, 1fr) auto;
+    }
+    .end-mark :global(.end-code) {
+      grid-column: 1 / -1;
+      justify-self: center;
+    }
   }
   .end-no {
     font-size: 13px;

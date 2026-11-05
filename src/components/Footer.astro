@@ -2,10 +2,10 @@
 import Logo from './Logo.astro';
 import Barcode from './Barcode.astro';
 import { LINKS, NAV, SITE } from '../site.config';
-import { fmtDate } from '../lib/posts';
+import { fmtBuildDate } from '../lib/posts';
 
-const year = new Date().getFullYear();
-const build = fmtDate(new Date());
+const build = fmtBuildDate(SITE.timezone);
+const year = build.slice(0, 4);
 ---
 
 <footer class="site-footer">
@@ -36,7 +36,7 @@ const build = fmtDate(new Date());
     </div>
 
     <div class="f-meta">
-      <Barcode value={SITE.codename + build} class="f-code" />
+      <Barcode value={SITE.terminalId} height={30} class="f-code" />
       <p class="label">© {year} {SITE.author} · All systems nominal</p>
       <p class="label">Build {build} · Powered by Astro</p>
       <a class="label to-top" href="#top">↑ Back to top / 返回顶部</a>
@@ -97,8 +97,7 @@ const build = fmtDate(new Date());
     text-align: right;
   }
   .f-meta :global(.f-code) {
-    color: var(--fg);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   .to-top {
     margin-top: 6px;
