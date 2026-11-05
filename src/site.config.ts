@@ -42,15 +42,6 @@ export const PROFILE = {
     { k: 'INTEREST', cn: '兴趣', v: '游戏 · 设计 · 工业美学（占位）' },
     { k: 'STATUS', cn: '状态', v: '持续构建中' },
   ],
-  /** 能力矩阵（六边形雷达图），level 取 0–100，需正好 6 项 */
-  abilities: [
-    { en: 'CODE', cn: '编码', level: 82 },
-    { en: 'DESIGN', cn: '设计', level: 64 },
-    { en: 'SYSTEM', cn: '系统', level: 70 },
-    { en: 'WRITING', cn: '写作', level: 58 },
-    { en: 'GAMING', cn: '游戏', level: 90 },
-    { en: 'CURIOSITY', cn: '好奇心', level: 95 },
-  ],
 };
 
 export type ProjectStatus = 'ACTIVE' | 'PLANNED' | 'ARCHIVED';

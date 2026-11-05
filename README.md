@@ -17,7 +17,7 @@ npm run preview  # 预览构建结果
 
 | 想改的内容 | 文件 |
 | --- | --- |
-| 名字、简介、身份卡、能力雷达、项目、联系方式 | `src/site.config.ts` |
+| 名字、简介、身份卡、项目、联系方式 | `src/site.config.ts` |
 | 写文章 | `src/content/blog/*.md`（参考站内的《写作指南》） |
 | 颜色、字体等设计变量 | `src/styles/global.css` 顶部的 `:root` |
 | 文章排版 | `src/styles/prose.css` |
@@ -35,7 +35,7 @@ src/
 ├─ site.config.ts        个人信息配置
 ├─ content.config.ts     博客 frontmatter 定义
 ├─ content/blog/         文章（Markdown）
-├─ components/           组件（页头、页脚、雷达图、条码……）
+├─ components/           组件（页头、页脚、条码、定位环……）
 ├─ layouts/Base.astro    页面骨架
 ├─ lib/posts.ts          文章排序、编号、阅读时间
 ├─ pages/                路由：首页、/blog、/tags、RSS、404

@@ -3,7 +3,6 @@ import Base from '../layouts/Base.astro';
 import Rings from '../components/Rings.astro';
 import Barcode from '../components/Barcode.astro';
 import Logo from '../components/Logo.astro';
-import Radar from '../components/Radar.astro';
 import SectionHead from '../components/SectionHead.astro';
 import PostRow from '../components/PostRow.astro';
 import { SITE, IDENTITY, PROFILE, PROJECTS, LINKS, type ProjectStatus } from '../site.config';
@@ -89,9 +88,9 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
   <section class="section" id="profile">
     <div class="container">
       <SectionHead index="01" en="Profile" cn="个人档案" note={`File · ${SITE.terminalId} · Rev.01`} />
-      <div class="profile-grid">
-        <div class="panel corners bio reveal">
-          <p class="label panel-tag">Basic info / 基础信息</p>
+      <div class="panel corners bio reveal">
+        <p class="label panel-tag">Basic info / 基础信息</p>
+        <div class="bio-body">
           <div class="bio-text">{PROFILE.bio.map((p) => <p>{p}</p>)}</div>
           <dl class="facts">
             {
@@ -105,16 +104,11 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
               ))
             }
           </dl>
-          <div class="bio-foot">
-            <span class="label">Record synced / 档案同步</span>
-            <span class="mono">{synced}</span>
-            <Barcode value={`${SITE.codename}-profile`} height={16} class="bio-code" />
-          </div>
         </div>
-        <div class="panel corners matrix reveal" style="--i:1">
-          <p class="label panel-tag">Ability matrix / 能力矩阵</p>
-          <Radar abilities={PROFILE.abilities} />
-          <p class="label matrix-note">* 自评数据 · Self-assessed</p>
+        <div class="bio-foot">
+          <span class="label">Record synced / 档案同步</span>
+          <span class="mono">{synced}</span>
+          <Barcode value={`${SITE.codename}-profile`} width={360} height={16} class="bio-code" />
         </div>
       </div>
     </div>
@@ -412,14 +406,14 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
   }
 
   /* ---------------- profile ---------------- */
-  .profile-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    gap: 24px;
+  .bio {
+    padding: 28px clamp(20px, 3vw, 36px) 24px;
   }
-  .bio,
-  .matrix {
-    padding: 28px clamp(20px, 3vw, 36px) 28px;
+  .bio-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 28px clamp(32px, 5vw, 72px);
+    align-items: start;
   }
   .panel-tag {
     display: inline-block;
@@ -432,7 +426,6 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     display: grid;
     gap: 12px;
     font-size: 17px;
-    margin-bottom: 28px;
   }
   .bio-text p:last-child {
     color: var(--fg-muted);
@@ -452,18 +445,11 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     margin: 4px 0 0;
     font-weight: 600;
   }
-  .bio {
-    display: flex;
-    flex-direction: column;
-  }
-  .bio .facts {
-    margin-bottom: 24px;
-  }
   .bio-foot {
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-top: auto;
+    margin-top: 28px;
     padding-top: 16px;
     border-top: 1px dashed var(--line-mid);
     color: var(--fg-faint);
@@ -473,25 +459,11 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     color: var(--fg-muted);
   }
   .bio-foot :global(.bio-code) {
-    flex: 1;
+    flex: 0 1 280px;
     min-width: 0;
-    width: 100%;
+    margin-left: auto;
     color: var(--fg);
     opacity: 0.35;
-  }
-  .matrix {
-    display: flex;
-    flex-direction: column;
-  }
-  .matrix :global(.radar-svg) {
-    max-width: 420px;
-    margin: 0 auto;
-  }
-  .matrix-note {
-    margin-top: auto;
-    padding-top: 10px;
-    font-size: 10px;
-    color: var(--fg-faint);
   }
 
   /* ---------------- projects ---------------- */
@@ -696,7 +668,7 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     .id-card {
       max-width: 440px;
     }
-    .profile-grid,
+    .bio-body,
     .contact-grid {
       grid-template-columns: 1fr;
     }
