@@ -18,9 +18,31 @@ export const SITE = {
   since: 2026,
 };
 
+export interface Section {
+  /** 文件夹名，也是网址：src/content/blog/<id>/ → /blog/<id>/。用英文小写 */
+  id: string;
+  en: string;
+  cn: string;
+  desc: string;
+  /** 是否出现在顶部导航，默认出现。设为 false 后只在首页和日志页里出现 */
+  nav?: boolean;
+}
+
+/**
+ * 博客板块。新增一个板块只要两步：
+ *   1. 在下面加一项；
+ *   2. 新建 src/content/blog/<id>/ 文件夹，把文章放进去。
+ * 导航、首页板块卡片、板块列表页都会自动生成。
+ */
+export const SECTIONS: Section[] = [
+  { id: 'tech', en: 'Tech', cn: '技术博客', desc: '编程、工具和踩过的坑。写给未来的自己，也写给碰巧搜到这里的人。' },
+  { id: 'games', en: 'Games', cn: '游戏评测', desc: '玩过的游戏，打个分，说说好在哪、差在哪。' },
+  { id: 'misc', en: 'Misc', cn: '搞七捻三', desc: '不归上面任何一类的东西：随想、日常、碎碎念。' },
+];
+
 export const NAV = [
   { href: '/', en: 'HOME', cn: '主页' },
-  { href: '/blog/', en: 'LOGS', cn: '日志' },
+  ...SECTIONS.filter((s) => s.nav !== false).map((s) => ({ href: `/blog/${s.id}/`, en: s.en, cn: s.cn })),
   { href: '/tags/', en: 'TAGS', cn: '标签' },
 ];
 

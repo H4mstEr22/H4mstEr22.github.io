@@ -5,12 +5,16 @@ import Barcode from '../components/Barcode.astro';
 import Logo from '../components/Logo.astro';
 import SectionHead from '../components/SectionHead.astro';
 import PostRow from '../components/PostRow.astro';
-import { SITE, IDENTITY, PROFILE, PROJECTS, LINKS, type ProjectStatus } from '../site.config';
-import { getPosts, fmtBuildDate } from '../lib/posts';
+import { SITE, IDENTITY, PROFILE, PROJECTS, LINKS, SECTIONS, type ProjectStatus } from '../site.config';
+import { getPosts, fmtBuildDate, fmtDate, sectionHref } from '../lib/posts';
 
 const posts = await getPosts();
 const synced = fmtBuildDate(SITE.timezone);
 const latest = posts.slice(0, 4);
+const sectors = SECTIONS.map((s, i) => {
+  const list = posts.filter((p) => p.section.id === s.id);
+  return { ...s, no: String(i + 1).padStart(2, '0'), count: list.length, latest: list[0] };
+});
 const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: '筹备中', ARCHIVED: '已归档' };
 ---
 
@@ -125,30 +129,30 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
             const external = p.href?.startsWith('http');
             return (
               <Tag
-                class:list={['project', 'reveal', `is-${p.status.toLowerCase()}`, { 'has-link': p.href }]}
+                class:list={['tile', 'project', 'reveal', `is-${p.status.toLowerCase()}`]}
                 style={`--i:${i}`}
                 href={p.href}
                 target={external ? '_blank' : undefined}
                 rel={external ? 'noopener' : undefined}
               >
-                <span class="p-top">
-                  <span class="mono p-code">{p.code}</span>
+                <span class="t-top">
+                  <span class="mono t-code">{p.code}</span>
                   <span class="p-status mono">
                     <i aria-hidden="true" />
                     {p.status} · {statusCn[p.status]}
                   </span>
                 </span>
-                <span class="p-name">
+                <span class="t-name">
                   <span class="display">{p.name}</span>
-                  <span class="p-cn">{p.cn}</span>
+                  <span class="t-cn">{p.cn}</span>
                 </span>
-                <span class="p-desc">{p.desc}</span>
+                <span class="t-desc">{p.desc}</span>
                 <span class="chips">
                   {p.tags.map((t) => (
                     <span class="chip">{t}</span>
                   ))}
                 </span>
-                <span class="p-foot mono">
+                <span class="t-foot mono">
                   <span>{p.href ? 'Access' : 'No link'}</span>
                   <span aria-hidden="true">{p.href ? '↗' : '—'}</span>
                 </span>
@@ -160,10 +164,47 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     </div>
   </section>
 
-  <!-- ============ 03 LOGS ============ -->
-  <section class="section" id="logs">
+  <!-- ============ 03 SECTORS ============ -->
+  <section class="section" id="sectors">
     <div class="container">
-      <SectionHead index="03" en="Latest logs" cn="最新日志" note={`Total ${posts.length}`} />
+      <SectionHead index="03" en="Sectors" cn="日志板块" note={`${SECTIONS.length} sectors`} />
+      <div class="sec-grid">
+        {
+          sectors.map((s, i) => (
+            <a class="tile sector reveal" style={`--i:${i}`} href={sectionHref(s)}>
+              <span class="s-ghost display" aria-hidden="true">
+                {s.no}
+              </span>
+              <span class="t-top">
+                <span class="mono t-code">SEC.{s.no}</span>
+                <span class="mono s-count">
+                  {s.count} {s.count === 1 ? 'entry' : 'entries'}
+                </span>
+              </span>
+              <span class="t-name">
+                <span class="display">{s.en}</span>
+                <span class="t-cn">{s.cn}</span>
+              </span>
+              <span class="t-desc">{s.desc}</span>
+              <span class="s-latest">
+                <span class="label">Latest / 最新{s.latest && ` · ${fmtDate(s.latest.data.pubDate)}`}</span>
+                <span class:list={['s-lt', { 's-none': !s.latest }]}>{s.latest ? s.latest.data.title : '暂无日志 · No signal'}</span>
+              </span>
+              <span class="t-foot mono">
+                <span>Enter sector</span>
+                <span aria-hidden="true">→</span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 LOGS ============ -->
+  <section class="section section--alt" id="logs">
+    <div class="container">
+      <SectionHead index="04" en="Latest logs" cn="最新日志" note={`Total ${posts.length}`} />
       <div class="log-list reveal">
         {latest.map((p) => <PostRow post={p} />)}
       </div>
@@ -175,10 +216,10 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     </div>
   </section>
 
-  <!-- ============ 04 CONTACT ============ -->
+  <!-- ============ 05 CONTACT ============ -->
   <section class="section" id="contact">
     <div class="container">
-      <SectionHead index="04" en="Contact" cn="通讯频道" note="Channel open" />
+      <SectionHead index="05" en="Contact" cn="通讯频道" note="Channel open" />
       <div class="contact-grid">
         <div class="contact-lead reveal">
           <p class="cl-big">有想法、问题，<br />或者只是想打个招呼？</p>
@@ -467,17 +508,18 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     opacity: 0.35;
   }
 
-  /* ---------------- projects ---------------- */
+  /* ---------------- tiles (projects + sectors) ---------------- */
   .section--alt {
     background: color-mix(in srgb, var(--bg-elev) 55%, transparent);
     border-block: 1px solid var(--line);
   }
-  .proj-grid {
+  .proj-grid,
+  .sec-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
     gap: 20px;
   }
-  .project {
+  .tile {
     --cut: 18px;
     position: relative;
     display: flex;
@@ -489,7 +531,7 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
     transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
   }
-  .project::after {
+  .tile::after {
     /* diagonal edge on the clipped corner */
     content: '';
     position: absolute;
@@ -506,7 +548,7 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     );
     pointer-events: none;
   }
-  .project.has-link:hover::after {
+  a.tile:hover::after {
     background: linear-gradient(
       to top right,
       transparent calc(50% - 0.75px),
@@ -515,11 +557,11 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
       transparent calc(50% + 0.75px)
     );
   }
-  .project.has-link:hover {
+  a.tile:hover {
     transform: translateY(-4px);
     box-shadow: inset 0 0 0 1px var(--line-strong);
   }
-  .p-top {
+  .t-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -528,11 +570,11 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     border-bottom: 1px solid var(--line);
     transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
   }
-  .project.has-link:hover .p-top {
+  a.tile:hover .t-top {
     background: var(--accent);
     color: var(--on-accent);
   }
-  .p-code {
+  .t-code {
     font-size: 13px;
     font-weight: 700;
   }
@@ -555,28 +597,28 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
   .is-planned .p-status i {
     background: var(--signal);
   }
-  .p-name {
+  .t-name {
     display: flex;
     flex-direction: column;
     gap: 2px;
     margin-top: 6px;
   }
-  .p-name .display {
+  .t-name .display {
     font-size: 30px;
     font-weight: 700;
     line-height: 1;
   }
-  .p-cn {
+  .t-cn {
     font-size: 13px;
     letter-spacing: 0.24em;
     color: var(--fg-muted);
   }
-  .p-desc {
+  .t-desc {
     font-size: 15px;
     color: var(--fg-muted);
     flex: 1;
   }
-  .p-foot {
+  .t-foot {
     display: flex;
     justify-content: space-between;
     padding-top: 12px;
@@ -586,11 +628,55 @@ const statusCn: Record<ProjectStatus, string> = { ACTIVE: '运行中', PLANNED: 
     text-transform: uppercase;
     color: var(--fg-muted);
   }
-  .project.has-link:hover .p-foot {
+  a.tile:hover .t-foot {
     color: var(--fg);
   }
   .is-archived {
     opacity: 0.72;
+  }
+
+  /* sectors */
+  .s-ghost {
+    position: absolute;
+    top: 58px;
+    right: 18px;
+    z-index: -1; /* tile 的 clip-path 自成层叠上下文，数字只会垫在文字下面 */
+    font-size: 104px;
+    font-weight: 700;
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--line-mid);
+    pointer-events: none;
+    transition: -webkit-text-stroke-color 0.3s var(--ease);
+  }
+  a.sector:hover .s-ghost {
+    -webkit-text-stroke-color: var(--line-strong);
+  }
+  .s-count {
+    margin-right: 10px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+  .sector .t-name .display {
+    font-size: 48px;
+    line-height: 0.9;
+  }
+  .s-latest {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 12px;
+    border-left: 2px solid var(--accent);
+  }
+  .s-lt {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .s-none {
+    color: var(--fg-faint);
+    font-weight: 500;
   }
 
   /* ---------------- logs ---------------- */

@@ -24,6 +24,17 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
   if (!readTheme()) root.dataset.theme = e.matches ? 'dark' : 'light';
 });
 
+/* ---------- header: collapse the nav into the menu when it doesn't fit ---------- */
+const bar = document.querySelector<HTMLElement>('.site-header .inner');
+if (bar && 'ResizeObserver' in window) {
+  const fit = () => {
+    root.classList.remove('nav-tight');
+    root.classList.toggle('nav-tight', bar.scrollWidth > bar.clientWidth);
+  };
+  new ResizeObserver(fit).observe(bar);
+  document.fonts?.ready.then(fit);
+}
+
 /* ---------- clock (UTC+8) ---------- */
 const clocks = document.querySelectorAll<HTMLElement>('[data-clock]');
 if (clocks.length) {

@@ -2,6 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import PageHead from '../../components/PageHead.astro';
 import PostList from '../../components/PostList.astro';
+import SectionBar from '../../components/SectionBar.astro';
+import { SECTIONS } from '../../site.config';
 import { getPosts, getTags, fmtDate } from '../../lib/posts';
 
 const posts = await getPosts();
@@ -9,18 +11,20 @@ const tags = getTags(posts);
 const chars = posts.reduce((n, p) => n + p.chars, 0);
 ---
 
-<Base title="日志 Logs" description="H4mstEr22 的博客：技术笔记、项目记录与日常。">
+<Base title="日志 Logs" description={`H4mstEr22 的博客：${SECTIONS.map((s) => s.cn).join('、')}。`}>
   <PageHead
-    index="02"
+    index="SEC.00"
     en="Logs"
-    cn="日志"
-    desc="技术笔记、项目记录，以及一些日常观测。按时间倒序排列，最新的在最上面。"
+    cn="全部日志"
+    desc="所有板块的日志，按时间倒序排列，最新的在最上面。"
     stats={[
       { k: 'Entries / 篇数', v: posts.length },
-      { k: 'Tags / 标签', v: tags.length },
+      { k: 'Sectors / 板块', v: SECTIONS.length },
       { k: 'Chars / 字数', v: chars.toLocaleString('en-US') },
       { k: 'Last / 最近更新', v: posts[0] ? fmtDate(posts[0].data.pubDate) : '—' },
     ]}
   />
-  <PostList posts={posts} tags={tags} />
+  <PostList posts={posts} tags={tags}>
+    <SectionBar />
+  </PostList>
 </Base>

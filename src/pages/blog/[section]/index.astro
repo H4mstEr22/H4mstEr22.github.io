@@ -1,0 +1,33 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHead from '../../../components/PageHead.astro';
+import PostList from '../../../components/PostList.astro';
+import SectionBar from '../../../components/SectionBar.astro';
+import { SECTIONS } from '../../../site.config';
+import { getPosts, getTags, fmtDate, fmtScore } from '../../../lib/posts';
+
+export function getStaticPaths() {
+  return SECTIONS.map((section, i) => ({ params: { section: section.id }, props: { section, no: i + 1 } }));
+}
+
+const { section, no } = Astro.props;
+const posts = (await getPosts()).filter((p) => p.section.id === section.id);
+const chars = posts.reduce((n, p) => n + p.chars, 0);
+const scores = posts.flatMap((p) => (p.data.review ? [p.data.review.score] : []));
+const stats = [
+  { k: 'Entries / 篇数', v: posts.length },
+  { k: 'Tags / 标签', v: getTags(posts).length },
+  { k: 'Chars / 字数', v: chars.toLocaleString('en-US') },
+  { k: 'Last / 最近更新', v: posts[0] ? fmtDate(posts[0].data.pubDate) : '—' },
+];
+if (scores.length) {
+  stats.splice(1, 0, { k: 'Avg / 平均分', v: fmtScore(Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10) });
+}
+---
+
+<Base title={`${section.cn} ${section.en}`} description={section.desc}>
+  <PageHead index={`SEC.${String(no).padStart(2, '0')}`} en={section.en} cn={section.cn} desc={section.desc} stats={stats} />
+  <PostList posts={posts} showSection={false} empty="这个板块还没有日志，信号接入中。">
+    <SectionBar active={section.id} />
+  </PostList>
+</Base>

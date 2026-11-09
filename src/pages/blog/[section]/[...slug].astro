@@ -1,24 +1,31 @@
 ---
 import { render } from 'astro:content';
-import Base from '../../layouts/Base.astro';
-import Barcode from '../../components/Barcode.astro';
-import { getPosts, fmtDate, tagHref } from '../../lib/posts';
-import { canEncode } from '../../lib/code128';
-import '../../styles/prose.css';
+import Base from '../../../layouts/Base.astro';
+import Barcode from '../../../components/Barcode.astro';
+import ReviewCard from '../../../components/ReviewCard.astro';
+import { getPosts, fmtDate, postHref, sectionHref, tagHref } from '../../../lib/posts';
+import { canEncode } from '../../../lib/code128';
+import '../../../styles/prose.css';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
-  return posts.map((post, i) => ({
-    params: { slug: post.id },
-    props: { post, newer: posts[i - 1], older: posts[i + 1] },
-  }));
+  return posts.map((post) => {
+    // 上一篇 / 下一篇只在同一板块里翻
+    const siblings = posts.filter((p) => p.section.id === post.section.id);
+    const i = siblings.indexOf(post);
+    return {
+      params: { section: post.section.id, slug: post.id.slice(post.section.id.length + 1) },
+      props: { post, newer: siblings[i - 1], older: siblings[i + 1] },
+    };
+  });
 }
 
 const { post, newer, older } = Astro.props;
-const { title, description, pubDate, updatedDate, tags, draft } = post.data;
+const { section } = post;
+const { title, description, pubDate, updatedDate, tags, draft, review } = post.data;
 const { Content, headings } = await render(post);
 /** 条码编码文件名；文件名含中文等 Code 128 不支持的字符时改用日志编号 */
-const barcodeValue = canEncode(post.id) ? post.id : post.logNo;
+const barcodeValue = canEncode(post.file) ? post.file : post.logNo;
 const toc = headings.filter((h) => (h.depth === 2 || h.depth === 3) && h.slug !== 'footnote-label');
 let h2 = 0;
 const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padStart(2, '0') : '' }));
@@ -28,11 +35,12 @@ const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padSta
   <article class="post">
     <header class="post-head container">
       <nav class="crumbs label" aria-label="面包屑">
-        <a href="/">Home</a><span>/</span><a href="/blog/">Logs</a><span>/</span><span class="cur">{post.logNo}</span>
+        <a href="/">Home</a><span>/</span><a href="/blog/">Logs</a><span>/</span><a href={sectionHref(section)}>{section.en}</a><span>/</span><span class="cur">{post.logNo}</span>
       </nav>
       <div class="meta">
         <span class="m-no mono">{post.logNo}</span>
         {draft && <span class="m-draft mono">DRAFT</span>}
+        <a class="m-item m-sec" href={sectionHref(section)}><span class="label">Sector</span><span>{section.cn}</span></a>
         <span class="m-item"><span class="label">Date</span><time class="mono" datetime={pubDate.toISOString()}>{fmtDate(pubDate)}</time></span>
         {
           updatedDate && (
@@ -63,8 +71,11 @@ const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padSta
     <div class="container"><div class="ticks"></div></div>
 
     <div class:list={['container', 'post-grid', { 'no-toc': tocItems.length === 0 }]}>
-      <div class="prose">
-        <Content />
+      <div class="post-main">
+        {review && <ReviewCard review={review} />}
+        <div class="prose">
+          <Content />
+        </div>
       </div>
       {
         tocItems.length > 0 && (
@@ -97,22 +108,22 @@ const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padSta
       <nav class="post-nav" aria-label="相邻文章">
         {
           older ? (
-            <a class="pn prev" href={`/blog/${older.id}/`}>
+            <a class="pn prev" href={postHref(older)}>
               <span class="label">← Older / 上一篇</span>
               <span class="pn-title">{older.data.title}</span>
             </a>
           ) : (
-            <span class="pn pn-empty label">— 已是最早一篇 —</span>
+            <span class="pn pn-empty label">— 已是{section.cn}的第一篇 —</span>
           )
         }
         {
           newer ? (
-            <a class="pn next" href={`/blog/${newer.id}/`}>
+            <a class="pn next" href={postHref(newer)}>
               <span class="label">Newer / 下一篇 →</span>
               <span class="pn-title">{newer.data.title}</span>
             </a>
           ) : (
-            <span class="pn pn-empty label">— 已是最新一篇 —</span>
+            <span class="pn pn-empty label">— 已是{section.cn}的最新一篇 —</span>
           )
         }
       </nav>
@@ -202,6 +213,17 @@ const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padSta
   }
   .m-item .mono {
     font-size: 13px;
+  }
+  .m-sec {
+    font-size: 13px;
+    transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  .m-sec:hover {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .m-sec:hover .label {
+    color: var(--on-accent);
   }
   .post-title {
     max-width: 920px;

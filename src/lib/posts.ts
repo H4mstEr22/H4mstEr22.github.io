@@ -1,13 +1,18 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { SECTIONS, type Section } from '../site.config';
 
 export type Post = CollectionEntry<'blog'> & {
   /** 按发布时间从旧到新编号：LOG.0001 起 */
   logNo: string;
+  /** 所属板块，由文章所在的文件夹决定 */
+  section: Section;
+  /** 文件名（不含扩展名和文件夹） */
+  file: string;
   minutes: number;
   chars: number;
 };
 
-const CJK = /[㐀-鿿豈-﫿]/g;
+const CJK = /[㐀-鿿豈-﫿]/g;
 
 export function readingStats(body = '') {
   const text = body
@@ -19,6 +24,21 @@ export function readingStats(body = '') {
   return { chars: cjk + words, minutes: Math.max(1, Math.round(cjk / 400 + words / 220)) };
 }
 
+/** 文章 id 形如 "tech/terminal-online"，第一段是板块文件夹 */
+function locate(entry: CollectionEntry<'blog'>) {
+  const parts = entry.id.split('/');
+  const section = SECTIONS.find((s) => s.id === parts[0]);
+  if (parts.length < 2 || !section) {
+    const ids = SECTIONS.map((s) => s.id).join('、');
+    throw new Error(
+      parts.length < 2
+        ? `文章 ${entry.filePath} 没有放在板块文件夹里，请移到 src/content/blog/<板块>/ 下（现有板块：${ids}）。`
+        : `文章 ${entry.filePath} 所在的文件夹「${parts[0]}」不是已配置的板块，请先在 src/site.config.ts 的 SECTIONS 里添加（现有板块：${ids}）。`,
+    );
+  }
+  return { section, file: parts[parts.length - 1] };
+}
+
 /** 所有已发布文章，按时间倒序 */
 export async function getPosts(): Promise<Post[]> {
   const entries = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
@@ -26,6 +46,7 @@ export async function getPosts(): Promise<Post[]> {
   return asc
     .map((entry, i) => ({
       ...entry,
+      ...locate(entry),
       logNo: `LOG.${String(i + 1).padStart(4, '0')}`,
       ...readingStats(entry.body),
     }))
@@ -47,4 +68,9 @@ export const fmtBuildDate = (timeZone = 'Asia/Shanghai') =>
     .format(new Date())
     .replaceAll('-', '.');
 
-export const tagHref =(t: string) => `/tags/${encodeURIComponent(t)}/`;
+/** 评分：整数原样显示，否则保留一位小数 */
+export const fmtScore = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+
+export const postHref = (p: Post) => `/blog/${p.id}/`;
+export const sectionHref = (s: Section) => `/blog/${s.id}/`;
+export const tagHref = (t: string) => `/tags/${encodeURIComponent(t)}/`;

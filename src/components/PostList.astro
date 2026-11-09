@@ -1,15 +1,18 @@
 ---
-/** 标签筛选条 + 按年份分组的文章列表 */
+/** 筛选条 + 按年份分组的文章列表。默认插槽放在筛选条上方（用来放板块切换条） */
 import PostRow from './PostRow.astro';
 import { tagHref, type Post } from '../lib/posts';
 
 interface Props {
   posts: Post[];
-  tags: [string, number][];
+  /** 传了才显示标签筛选条 */
+  tags?: [string, number][];
   activeTag?: string;
   total?: number;
+  showSection?: boolean;
+  empty?: string;
 }
-const { posts, tags, activeTag, total = posts.length } = Astro.props;
+const { posts, tags, activeTag, total = posts.length, showSection = true, empty = '暂无日志，信号接入中。' } = Astro.props;
 
 const years = new Map<number, Post[]>();
 for (const p of posts) {
@@ -19,29 +22,36 @@ for (const p of posts) {
 ---
 
 <div class="container post-list">
-  <nav class="tag-bar" aria-label="按标签筛选">
-    <span class="label tb-label">Filter / 筛选</span>
-    <div class="chips">
-      <a class:list={['chip', { 'is-active': !activeTag }]} href="/blog/">ALL <span class="count">{total}</span></a>
-      {
-        tags.map(([t, c]) => (
-          <a
-            class:list={['chip', { 'is-active': activeTag === t }]}
-            href={tagHref(t)}
-            aria-current={activeTag === t ? 'page' : undefined}
-          >
-            #{t} <span class="count">{c}</span>
-          </a>
-        ))
-      }
-    </div>
-  </nav>
+  <div class="filters">
+    <slot />
+    {
+      tags && (
+        <nav class="tag-bar" aria-label="按标签筛选">
+          <span class="label tb-label">Tags / 标签</span>
+          <div class="chips">
+            <a class:list={['chip', { 'is-active': !activeTag }]} href="/blog/">
+              ALL <span class="count">{total}</span>
+            </a>
+            {tags.map(([t, c]) => (
+              <a
+                class:list={['chip', { 'is-active': activeTag === t }]}
+                href={tagHref(t)}
+                aria-current={activeTag === t ? 'page' : undefined}
+              >
+                #{t} <span class="count">{c}</span>
+              </a>
+            ))}
+          </div>
+        </nav>
+      )
+    }
+  </div>
 
   {
     posts.length === 0 ? (
       <div class="empty panel corners">
         <p class="display">NO SIGNAL</p>
-        <p class="muted">暂无日志。在 src/content/blog/ 里新建一个 .md 文件就能发布第一篇。</p>
+        <p class="muted">{empty}</p>
       </div>
     ) : (
       [...years].map(([y, list]) => (
@@ -52,7 +62,7 @@ for (const p of posts) {
           </div>
           <div class="year-list">
             {list.map((p) => (
-              <PostRow post={p} />
+              <PostRow post={p} showSection={showSection} />
             ))}
           </div>
         </section>
@@ -65,14 +75,22 @@ for (const p of posts) {
   .post-list {
     padding-top: 32px;
   }
+  .filters {
+    display: grid;
+    gap: 14px;
+    padding: 14px 0 40px;
+  }
+  .filters:empty {
+    display: none;
+  }
   .tag-bar {
     display: flex;
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
-    padding: 14px 0 40px;
   }
   .tb-label {
+    min-width: 108px;
     color: var(--fg-faint);
   }
   .year + .year {

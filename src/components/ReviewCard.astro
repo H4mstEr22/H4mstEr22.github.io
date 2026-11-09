@@ -1,0 +1,202 @@
+---
+/** 评测卡：文章 frontmatter 写了 review 就显示在正文上方 */
+import { fmtScore, type Post } from '../lib/posts';
+
+interface Props {
+  review: NonNullable<Post['data']['review']>;
+}
+const { game, platform, hours, score, verdict, pros, cons } = Astro.props.review;
+---
+
+<section class="review panel corners" aria-label="评测档案">
+  <div class="rv-head">
+    <span class="label">Review file / 评测档案</span>
+    <span class="label rv-flag">Rated</span>
+  </div>
+  <div class="rv-body">
+    <div class="rv-info">
+      <p class="label">Title / 游戏</p>
+      <p class="rv-game">{game}</p>
+      {
+        (platform || hours) && (
+          <dl class="rv-facts">
+            {platform && (
+              <div>
+                <dt class="label">Platform / 平台</dt>
+                <dd>{platform}</dd>
+              </div>
+            )}
+            {hours && (
+              <div>
+                <dt class="label">Playtime / 时长</dt>
+                <dd class="mono">≈ {hours} h</dd>
+              </div>
+            )}
+          </dl>
+        )
+      }
+    </div>
+    <div class="rv-score" role="img" aria-label={`评分 ${fmtScore(score)} / 10`}>
+      <p class="label">Score / 评分</p>
+      <p class="rv-num">
+        <span class="display">{fmtScore(score)}</span><span class="mono rv-max">/10</span>
+      </p>
+      <span class="rv-meter" style={`--pct:${score * 10}%`}></span>
+    </div>
+  </div>
+  {verdict && <p class="rv-verdict">{verdict}</p>}
+  {
+    (pros.length > 0 || cons.length > 0) && (
+      <div class="rv-pc">
+        {pros.length > 0 && (
+          <div class="rv-col rv-pros">
+            <p class="label">+ Pros / 优点</p>
+            <ul>
+              {pros.map((t) => (
+                <li>{t}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {cons.length > 0 && (
+          <div class="rv-col rv-cons">
+            <p class="label">− Cons / 缺点</p>
+            <ul>
+              {cons.map((t) => (
+                <li>{t}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .review {
+    max-width: 760px;
+    margin-bottom: 44px;
+  }
+  .rv-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .rv-flag {
+    padding: 1px 6px;
+    font-weight: 600;
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .rv-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 20px 32px;
+    padding: 20px;
+  }
+  .rv-game {
+    margin: 2px 0 14px;
+    font-size: clamp(22px, 3vw, 28px);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .rv-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: 0;
+  }
+  .rv-facts dd {
+    margin: 2px 0 0;
+    font-weight: 600;
+  }
+  .rv-score {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 190px;
+  }
+  .rv-num {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .rv-num .display {
+    font-size: 88px;
+    font-weight: 700;
+    line-height: 0.9;
+  }
+  .rv-max {
+    font-size: 15px;
+    color: var(--fg-muted);
+  }
+  .rv-meter {
+    width: 100%;
+    height: 10px;
+    margin-top: 10px;
+    background: linear-gradient(var(--accent) 0 0) 0 0 / var(--pct) 100% no-repeat, var(--line-mid);
+    /* 切成 10 格 */
+    mask: repeating-linear-gradient(90deg, #000 0 calc(10% - 3px), transparent calc(10% - 3px) 10%);
+  }
+  .rv-verdict {
+    margin: 0 20px;
+    padding: 14px 0 18px 16px;
+    border-top: 1px dashed var(--line-mid);
+    border-left: 3px solid var(--accent);
+    font-size: 17px;
+    font-weight: 500;
+  }
+  .rv-pc {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--line);
+  }
+  .rv-col {
+    padding: 14px 20px 18px;
+  }
+  .rv-col + .rv-col {
+    border-left: 1px solid var(--line);
+  }
+  .rv-col ul {
+    display: grid;
+    gap: 6px;
+    margin-top: 8px;
+    list-style: none;
+    font-size: 15px;
+  }
+  .rv-col li {
+    position: relative;
+    padding-left: 18px;
+  }
+  .rv-col li::before {
+    position: absolute;
+    left: 0;
+    font-family: var(--font-mono);
+    font-weight: 700;
+  }
+  .rv-pros li::before {
+    content: '+';
+    color: var(--ok);
+  }
+  .rv-cons li::before {
+    content: '−';
+    color: var(--alert);
+  }
+  @media (max-width: 560px) {
+    .rv-body,
+    .rv-pc {
+      grid-template-columns: 1fr;
+    }
+    .rv-score {
+      align-items: flex-start;
+      min-width: 0;
+    }
+    .rv-col + .rv-col {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+  }
+</style>

@@ -4,6 +4,7 @@ import { NAV, SITE } from '../site.config';
 
 const path = Astro.url.pathname;
 const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const items = NAV.map((n, i) => ({ ...n, no: String(i + 1).padStart(2, '0'), active: isActive(n.href) }));
 ---
 
 <header class="site-header" id="top">
@@ -20,13 +21,9 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 
       <nav class="nav" aria-label="主导航">
         {
-          NAV.map((n, i) => (
-            <a
-              href={n.href}
-              class:list={['nav-link', { 'is-active': isActive(n.href) }]}
-              aria-current={isActive(n.href) ? 'page' : undefined}
-            >
-              <span class="nav-idx mono">0{i + 1}</span>
+          items.map((n) => (
+            <a href={n.href} class:list={['nav-link', { 'is-active': n.active }]} aria-current={n.active ? 'page' : undefined}>
+              <span class="nav-idx mono">{n.no}</span>
               <span class="nav-en display">{n.en}</span>
               <span class="nav-cn">{n.cn}</span>
             </a>
@@ -48,8 +45,34 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
             <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"></path>
           </svg>
         </button>
+        <button class="menu-btn" type="button" popovertarget="site-menu" aria-label="导航菜单" title="导航菜单">
+          <svg class="i-menu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 6h18M3 12h18M3 18h11"></path>
+          </svg>
+          <svg class="i-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M5 5l14 14M19 5L5 19"></path>
+          </svg>
+        </button>
       </div>
     </div>
+  </div>
+
+  <!-- 窄屏（或导航放不下时）用的下拉菜单 -->
+  <div class="menu" id="site-menu" popover>
+    <p class="label menu-head">Navigation / 导航</p>
+    <nav aria-label="主导航">
+      {
+        items.map((n) => (
+          <a href={n.href} class:list={['menu-link', { 'is-active': n.active }]} aria-current={n.active ? 'page' : undefined}>
+            <span class="mono menu-idx">{n.no}</span>
+            <span class="display menu-en">{n.en}</span>
+            <span class="menu-cn">{n.cn}</span>
+            <span class="menu-go" aria-hidden="true">→</span>
+          </a>
+        ))
+      }
+    </nav>
+    <div class="hazard"></div>
   </div>
 </header>
 
@@ -176,7 +199,8 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     font-size: 9px;
     color: var(--fg-faint);
   }
-  .theme-btn {
+  .theme-btn,
+  .menu-btn {
     display: grid;
     place-items: center;
     width: 40px;
@@ -187,7 +211,8 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     cursor: pointer;
     transition: background-color 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
   }
-  .theme-btn:hover {
+  .theme-btn:hover,
+  .menu-btn:hover {
     background: var(--accent);
     border-color: var(--accent);
     color: var(--on-accent);
@@ -202,36 +227,132 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     display: block;
   }
 
+  /* ---------- 下拉菜单 ---------- */
+  .menu-btn,
+  .i-close,
+  .site-header:has(.menu:popover-open) .i-menu {
+    display: none;
+  }
+  .site-header:has(.menu:popover-open) .i-close {
+    display: block;
+  }
+  .site-header:has(.menu:popover-open) .menu-btn {
+    background: var(--fg);
+    border-color: var(--fg);
+    color: var(--bg);
+  }
+  .menu {
+    position: fixed;
+    inset: calc(var(--header-h) + 4px) 0 auto;
+    width: auto;
+    max-height: calc(100dvh - var(--header-h) - 4px);
+    margin: 0;
+    padding: 18px var(--gutter) 0;
+    overflow-y: auto;
+    border: 0;
+    border-bottom: 1px solid var(--line-strong);
+    background: var(--bg-elev);
+    color: var(--fg);
+    box-shadow: 0 28px 48px -28px rgba(0, 0, 0, 0.5);
+  }
+  .menu:popover-open {
+    animation: menu-in 0.25s var(--ease);
+  }
+  .menu::backdrop {
+    background: rgba(8, 9, 10, 0.32);
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+  .menu-head {
+    padding-bottom: 10px;
+    color: var(--fg-faint);
+  }
+  .menu-link {
+    position: relative;
+    display: grid;
+    grid-template-columns: 26px auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 14px;
+    padding: 14px 6px 14px 12px;
+    border-top: 1px solid var(--line);
+    color: var(--fg-muted);
+    transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  .menu-link:hover,
+  .menu-link.is-active {
+    color: var(--fg);
+  }
+  .menu-link:hover {
+    background: color-mix(in srgb, var(--fg) 5%, transparent);
+  }
+  .menu-link.is-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    bottom: 12px;
+    width: 3px;
+    background: var(--accent);
+  }
+  .menu-idx {
+    font-size: 11px;
+    color: var(--fg-faint);
+  }
+  .menu-en {
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.05em;
+  }
+  .menu-cn {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--fg-faint);
+  }
+  .menu .hazard {
+    margin: 0 calc(var(--gutter) * -1);
+  }
+
+  /* 收起导航：窄屏一定收；更宽时如果板块太多放不下，ui.ts 会给 html 加 nav-tight 也收起 */
   @media (max-width: 860px) {
-    .clock,
+    .nav,
     .brand-sub {
       display: none;
     }
-    .nav-link {
-      padding: 0 12px;
+    .menu-btn {
+      display: grid;
+    }
+    .tools {
+      margin-left: auto;
+    }
+  }
+  :global(html.nav-tight) .nav {
+    display: none;
+  }
+  :global(html.nav-tight) .menu-btn {
+    display: grid;
+  }
+  :global(html.nav-tight) .tools {
+    margin-left: auto;
+  }
+  @media (max-width: 1080px) {
+    .clock {
+      display: none;
     }
   }
   @media (max-width: 560px) {
     .inner {
       gap: 8px;
     }
-    .nav-idx,
-    .nav-cn {
-      display: none;
-    }
-    .nav-link {
-      padding: 0 9px;
-    }
-    .nav-en {
-      font-size: 16px;
+    .tools {
+      gap: 8px;
     }
     .brand-name {
       font-size: 19px;
-    }
-  }
-  @media (max-width: 400px) {
-    .brand-text {
-      display: none;
     }
   }
 </style>

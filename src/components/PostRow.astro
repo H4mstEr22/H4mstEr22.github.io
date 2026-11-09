@@ -1,16 +1,21 @@
 ---
 import type { Post } from '../lib/posts';
-import { fmtDate } from '../lib/posts';
+import { fmtDate, fmtScore, postHref } from '../lib/posts';
 
 interface Props {
   post: Post;
+  /** 是否标出所属板块（板块页里不需要） */
+  showSection?: boolean;
 }
-const { post } = Astro.props;
-const { title, description, pubDate, tags, draft } = post.data;
+const { post, showSection = true } = Astro.props;
+const { title, description, pubDate, tags, draft, review } = post.data;
 ---
 
-<a class="post-row" href={`/blog/${post.id}/`}>
-  <span class="pr-no mono">{post.logNo}</span>
+<a class="post-row" href={postHref(post)}>
+  <span class="pr-id">
+    <span class="pr-no mono">{post.logNo}</span>
+    {showSection && <span class="pr-sec">{post.section.cn}</span>}
+  </span>
   <time class="pr-date mono" datetime={pubDate.toISOString()}>{fmtDate(pubDate)}</time>
   <span class="pr-main">
     <span class="pr-title">
@@ -20,6 +25,13 @@ const { title, description, pubDate, tags, draft } = post.data;
     <span class="pr-desc">{description}</span>
   </span>
   <span class="pr-side">
+    {
+      review && (
+        <span class="pr-score mono" title="评分">
+          <b>{fmtScore(review.score)}</b>/10
+        </span>
+      )
+    }
     <span class="pr-tags mono">{tags.map((t) => `#${t}`).join('  ')}</span>
     <span class="pr-read label">{post.minutes} min</span>
   </span>
@@ -56,6 +68,12 @@ const { title, description, pubDate, tags, draft } = post.data;
   .post-row:hover::before {
     transform: scaleY(1);
   }
+  .pr-id {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
   .pr-no {
     font-size: 12px;
     font-weight: 600;
@@ -63,6 +81,15 @@ const { title, description, pubDate, tags, draft } = post.data;
   }
   .post-row:hover .pr-no {
     color: var(--fg);
+  }
+  .pr-sec {
+    padding: 0 6px;
+    font-size: 11px;
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    color: var(--fg-muted);
+    border: 1px solid var(--line-mid);
   }
   .pr-date {
     font-size: 13px;
@@ -102,6 +129,15 @@ const { title, description, pubDate, tags, draft } = post.data;
     gap: 4px;
     text-align: right;
   }
+  .pr-score {
+    padding: 0 6px;
+    font-size: 11px;
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .pr-score b {
+    font-size: 14px;
+  }
   .pr-tags {
     font-size: 12px;
     color: var(--fg-muted);
@@ -134,8 +170,11 @@ const { title, description, pubDate, tags, draft } = post.data;
       gap: 8px 14px;
       padding: 18px 0 18px 14px;
     }
-    .pr-no {
+    .pr-id {
       grid-area: no;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
     }
     .pr-date {
       grid-area: date;

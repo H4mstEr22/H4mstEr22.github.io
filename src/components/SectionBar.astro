@@ -1,0 +1,119 @@
+---
+/** 板块切换条：全部 + 每个板块，带篇数 */
+import { SECTIONS } from '../site.config';
+import { getPosts, sectionHref } from '../lib/posts';
+
+interface Props {
+  /** 当前板块 id；不传表示「全部」 */
+  active?: string;
+}
+const { active } = Astro.props;
+const posts = await getPosts();
+const tabs = [
+  { href: '/blog/', no: '00', en: 'All', cn: '全部', count: posts.length, on: !active },
+  ...SECTIONS.map((s, i) => ({
+    href: sectionHref(s),
+    no: String(i + 1).padStart(2, '0'),
+    en: s.en,
+    cn: s.cn,
+    count: posts.filter((p) => p.section.id === s.id).length,
+    on: active === s.id,
+  })),
+];
+---
+
+<nav class="sec-bar" aria-label="按板块浏览">
+  <span class="label sb-label">Sector / 板块</span>
+  <div class="sb-tabs">
+    {
+      tabs.map((t) => (
+        <a class:list={['sb-tab', { 'is-active': t.on }]} href={t.href} aria-current={t.on ? 'page' : undefined}>
+          <span class="mono sb-no">{t.no}</span>
+          <span class="display sb-en">{t.en}</span>
+          <span class="sb-cn">{t.cn}</span>
+          <span class="mono sb-count">{t.count}</span>
+        </a>
+      ))
+    }
+  </div>
+</nav>
+
+<style>
+  .sec-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .sb-label {
+    min-width: 108px;
+    color: var(--fg-faint);
+  }
+  .sb-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .sb-tab {
+    --cut: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 7px 16px 7px 12px;
+    background: linear-gradient(
+        to top right,
+        transparent calc(50% - 0.75px),
+        var(--line-mid) calc(50% - 0.75px),
+        var(--line-mid) calc(50% + 0.75px),
+        transparent calc(50% + 0.75px)
+      )
+      top right / var(--cut) var(--cut) no-repeat;
+    box-shadow: inset 0 0 0 1px var(--line-mid);
+    clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+    color: var(--fg-muted);
+    transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  .sb-tab:hover {
+    color: var(--fg);
+    background-color: color-mix(in srgb, var(--fg) 6%, transparent);
+  }
+  .sb-tab.is-active {
+    background: var(--accent);
+    box-shadow: none;
+    color: var(--on-accent);
+  }
+  .sb-no {
+    font-size: 10px;
+    opacity: 0.6;
+  }
+  .sb-en {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.05em;
+  }
+  .sb-cn {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+  }
+  .sb-count {
+    font-size: 11px;
+    opacity: 0.6;
+  }
+  @media (max-width: 560px) {
+    .sb-tabs {
+      gap: 6px;
+    }
+    .sb-en,
+    .sb-no {
+      display: none;
+    }
+    .sb-tab {
+      gap: 6px;
+      padding: 6px 13px 6px 9px;
+    }
+    .sb-cn {
+      letter-spacing: 0.02em;
+    }
+  }
+</style>
