@@ -2,7 +2,7 @@
 title: 写作指南：如何发布一篇新日志
 description: 选板块、新建文件、填写元数据、本地预览、推送发布。
 pubDate: 2026-11-05
-updatedDate: 2026-11-08
+updatedDate: 2026-11-12
 tags: [写作, 建站]
 ---
 
@@ -15,6 +15,7 @@ tags: [写作, 建站]
 | 板块 | 文件夹 | 网址 |
 | --- | --- | --- |
 | 技术博客 | `src/content/blog/tech/` | `/blog/tech/` |
+| 技术文档 | `src/content/blog/docs/` | `/blog/docs/` |
 | 游戏评测 | `src/content/blog/games/` | `/blog/games/` |
 | 搞七捻三 | `src/content/blog/misc/` | `/blog/misc/` |
 
@@ -46,6 +47,13 @@ tags: [标签一, 标签二]
 | `review` | 否 | 评测卡，见下一节 |
 
 日志编号（`LOG.0001` 这种）按发布日期自动生成，不需要手写。
+
+正文支持 GitHub 风格的提示块，从 GitHub 上搬过来的文档可以直接用：
+
+```md
+> [!NOTE]
+> 普通提示。另有 [!TIP]、[!IMPORTANT]、[!WARNING]、[!CAUTION]。
+```
 
 ## 游戏评测的评测卡
 

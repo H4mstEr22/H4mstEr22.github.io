@@ -35,7 +35,7 @@ npm run preview  # 预览构建结果
 src/
 ├─ site.config.ts        个人信息、板块配置
 ├─ content.config.ts     博客 frontmatter 定义（含评测卡 review）
-├─ content/blog/         文章（Markdown），每个板块一个文件夹：tech/ games/ misc/
+├─ content/blog/         文章（Markdown），每个板块一个文件夹：tech/ docs/ games/ misc/
 ├─ components/           组件（页头、页脚、条码、板块切换条、评测卡……）
 ├─ layouts/Base.astro    页面骨架
 ├─ lib/posts.ts          文章排序、编号、板块归属、阅读时间

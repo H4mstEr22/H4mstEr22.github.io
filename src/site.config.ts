@@ -36,6 +36,7 @@ export interface Section {
  */
 export const SECTIONS: Section[] = [
   { id: 'tech', en: 'Tech', cn: '技术博客', desc: '编程、工具和踩过的坑。写给未来的自己，也写给碰巧搜到这里的人。' },
+  { id: 'docs', en: 'Docs', cn: '技术文档', desc: '翻译和整理的技术文档，当作参考资料随时查阅。' },
   { id: 'games', en: 'Games', cn: '游戏评测', desc: '玩过的游戏，打个分，说说好在哪、差在哪。' },
   { id: 'misc', en: 'Misc', cn: '搞七捻三', desc: '不归上面任何一类的东西：随想、日常、碎碎念。' },
 ];

@@ -165,6 +165,42 @@
 .prose blockquote > * + * {
   margin-top: 0.8em;
 }
+/* GitHub 风格提示块：> [!NOTE] / [!TIP] / [!IMPORTANT] / [!WARNING] / [!CAUTION] */
+.prose blockquote[data-alert] {
+  --alert-c: var(--signal);
+  border-left-color: var(--alert-c);
+  color: var(--fg);
+}
+.prose blockquote[data-alert]::before {
+  color: var(--alert-c);
+  font-weight: 600;
+}
+.prose blockquote[data-alert='tip'] {
+  --alert-c: var(--ok);
+}
+.prose blockquote[data-alert='important'] {
+  --alert-c: var(--accent-ink);
+  border-left-color: var(--accent);
+}
+.prose blockquote[data-alert='warning'],
+.prose blockquote[data-alert='caution'] {
+  --alert-c: var(--alert);
+}
+.prose blockquote[data-alert='tip']::before {
+  content: 'TIP / 提示';
+}
+.prose blockquote[data-alert='important']::before {
+  content: 'IMPORTANT / 重要';
+}
+.prose blockquote[data-alert='warning']::before {
+  content: 'WARNING / 警告';
+}
+.prose blockquote[data-alert='caution']::before {
+  content: 'CAUTION / 注意';
+}
+.prose blockquote pre {
+  margin: 0.8em 0 0;
+}
 
 /* code blocks (Shiki dual theme, defaultColor: false) */
 .prose pre {

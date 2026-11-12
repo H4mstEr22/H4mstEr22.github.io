@@ -143,6 +143,15 @@ const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padSta
         const current = order.find((id) => visible.has(id));
         if (!current) return;
         links.forEach((a, id) => a.classList.toggle('is-active', id === current));
+        // 目录在侧栏里滚动时，让当前条目保持可见
+        const box = document.querySelector<HTMLElement>('.toc-inner');
+        const a = links.get(current)!;
+        if (box && box.scrollHeight > box.clientHeight) {
+          const top = a.offsetTop;
+          if (top < box.scrollTop || top + a.offsetHeight > box.scrollTop + box.clientHeight) {
+            box.scrollTo({ top: top - box.clientHeight / 3 });
+          }
+        }
       },
       { rootMargin: '-80px 0px -65% 0px' },
     );
@@ -253,8 +262,13 @@ const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padSta
   .toc-inner {
     position: sticky;
     top: calc(var(--header-h) + 28px);
-    padding-left: 18px;
-    border-left: 1px solid var(--line-mid);
+    /* 目录太长时在侧栏里滚动；竖线画成背景，避免被滚动区域裁掉高亮条 */
+    max-height: calc(100vh - var(--header-h) - 56px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding-left: 19px;
+    background: linear-gradient(var(--line-mid), var(--line-mid)) left top / 1px 100% no-repeat;
   }
   .toc-head {
     margin-bottom: 12px;
@@ -286,7 +300,7 @@ const tocItems = toc.map((h) => ({ ...h, no: h.depth === 2 ? String(++h2).padSta
   .toc a.is-active::before {
     content: '';
     position: absolute;
-    left: -20px;
+    left: -19px;
     top: 4px;
     bottom: 4px;
     width: 3px;
