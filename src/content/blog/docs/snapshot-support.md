@@ -322,7 +322,7 @@ curl --unix-socket /tmp/firecracker.socket -i \
 `backend_type` 字段表示用于加载快照的内存后端类型。可接受的值为：
 
 - `File` - 依赖内核在将客户机内存文件内容加载到内存时处理缺页。
-- `Uffd` - 使用专门的用户空间进程处理客户机内存范围的缺页。有关在用户空间处理缺页的更多细节，请参见[本文](https://github.com/firecracker-microvm/firecracker/blob/main/docs/snapshotting/handling-page-faults-on-snapshot-resume.md)。
+- `Uffd` - 使用专门的用户空间进程处理客户机内存范围的缺页。有关在用户空间处理缺页的更多细节，请参见[本文](/blog/docs/handling-page-faults-on-snapshot-resume/)。
 
 `backend_path` 的含义取决于所选的 `backend_type`：
 
